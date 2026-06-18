@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Rendimiento de Aceite</title>
+      <link rel="stylesheet" href="../MENUS.CSS">
+    <link rel="stylesheet" href="aceite.css">
+    
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- MENÚ LATERAL -->
+   <div id="menuGlobal"></div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+   
+    <main class="main-content" id="mainContent">
+
+        <!-- ENCABEZADO -->
+        <section class="encabezado">
+            <div>
+                <h1>Rendimiento de Aceite</h1>
+                <p>Registro diario del consumo de aceite por ficha, mantenimiento y kilometraje.</p>
+            </div>
+
+            <div class="botones">
+                <button class="btn btn-verde" onclick="reportarTanqueAceite()">Reportar tanque</button>
+                 <button class="btn btn-morado" onclick="irReporteTanque()">Ver reporte de tanque</button>
+            </div>
+        </section>
+
+        <!-- TARJETAS -->
+        <section class="tarjetas">
+            <div class="tarjeta">
+                <span>Tanque actual</span>
+                <strong id="cardTanqueActual">0</strong>
+            </div>
+
+            <div class="tarjeta">
+                <span>Stock tanque</span>
+                <strong id="cardStockTanque">0</strong>
+            </div>
+
+            <div class="tarjeta">
+                <span>Cuartillos usados</span>
+                <strong id="cardCuartillosUsados">0.00</strong>
+            </div>
+
+            <div class="tarjeta">
+                <span>Cuartillos restantes</span>
+                <strong id="cardCuartillosRestantes">0.00</strong>
+            </div>
+        </section>
+
+        <!-- FORMULARIO -->
+        <section class="panel">
+            <h2>Registrar consumo</h2>
+
+            <div class="form-grid">
+
+                <!-- FECHA AUTOMÁTICA, PERO EDITABLE -->
+                <div class="campo">
+                    <label>Fecha actual</label>
+                    <input type="date" id="fechaActual">
+                </div>
+
+                <!-- FICHA BUSCADOR -->
+                <div class="campo">
+                    <label>Ficha</label>
+                    <input 
+                        type="text" 
+                        id="ficha" 
+                        list="listaFichas" 
+                        placeholder="Ej: T89"
+                        oninput="buscarFichaAceite()"
+                    >
+                    <datalist id="listaFichas"></datalist>
+                    <span class="texto-ayuda">Si la ficha no existe, podrás crearla aquí.</span>
+                </div>
+
+                <!-- TIPO DE GUAGUA AUTOMÁTICO, PERO EDITABLE -->
+                <div class="campo">
+                    <label>Tipo de guagua / marca</label>
+                    <input 
+                        type="text" 
+                        id="tipoGuagua" 
+                        placeholder="Se trae automático, pero se puede editar"
+                        oninput="cantidadFueEditadaManual = false; calcularCantidadAceite();"
+                    >
+                </div>
+
+                <!-- TIPO DE MANTENIMIENTO -->
+                <div class="campo">
+                    <label>Tipo de mantenimiento</label>
+                    <select 
+                        id="tipoMantenimiento" 
+                        onchange="cantidadFueEditadaManual = false; kmAnteriorFueEditadoManual = false; calcularCantidadAceite(); buscarKmAnteriorAceite();"
+                    >
+                        <option value="">Seleccione</option>
+                        <option value="MANTENIMIENTO FULL">MANTENIMIENTO FULL</option>
+                        <option value="MANTENIMIENTO SEMI">MANTENIMIENTO SEMI</option>
+                        <option value="COMPLETIVO">COMPLETIVO</option>
+                        <option value="ERROR HUMANO">ERROR HUMANO</option>
+                    </select>
+                </div>
+
+                <!-- CANTIDAD AUTOMÁTICA, PERO EDITABLE -->
+                <div class="campo">
+                    <label>Cantidad</label>
+                    <input 
+                        type="number" 
+                        id="cantidad" 
+                        step="0.01" 
+                        placeholder="Automático, pero editable"
+                        oninput="cantidadFueEditadaManual = true;"
+                    >
+                </div>
+
+                <!-- KM ANTERIOR AUTOMÁTICO, PERO EDITABLE -->
+                <div class="campo">
+                    <label>KM anterior</label>
+                    <input 
+                        type="number" 
+                        id="kmAnterior" 
+                        step="0.01" 
+                        placeholder="Automático, pero editable"
+                        oninput="kmAnteriorFueEditadoManual = true; calcularKmTotalAceite();"
+                    >
+                </div>
+
+                <!-- KM ACTUAL MANUAL -->
+                <div class="campo">
+                    <label>KM actual</label>
+                    <input 
+                        type="number" 
+                        id="kmActual" 
+                        step="0.01"
+                        placeholder="Lo escribe el usuario"
+                        oninput="calcularKmTotalAceite()"
+                    >
+                </div>
+
+                <!-- KM TOTAL AUTOMÁTICO, PERO EDITABLE -->
+                <div class="campo">
+                    <label>KM total</label>
+                    <input 
+                        type="number" 
+                        id="kmTotal" 
+                        step="0.01" 
+                        placeholder="Automático, pero editable"
+                    >
+                </div>
+
+                <!-- COMENTARIO -->
+                <div class="campo campo-completo">
+                    <label>Comentario</label>
+                    <textarea 
+                        id="comentario" 
+                        rows="3" 
+                        placeholder="Escribe cualquier información importante..."
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <!-- PANEL PARA CREAR FICHA NUEVA -->
+            <div class="panel-ficha-nueva" id="panelFichaNueva">
+                <h3>Ficha no encontrada</h3>
+                <p>La ficha escrita no existe. Puedes crearla desde este mismo módulo.</p>
+
+                <div class="form-grid">
+                    <div class="campo">
+                        <label>Nueva ficha</label>
+                        <input type="text" id="nuevaFicha" readonly>
+                    </div>
+
+                    <div class="campo">
+                        <label>Tipo de guagua / marca</label>
+                        <select id="nuevaMarca">
+                            <option value="">Seleccione</option>
+                            <option value="COASTER">COASTER</option>
+                            <option value="HIACE CAJA VIEJA">HIACE CAJA VIEJA</option>
+                            <option value="H1">H1</option>
+                            <option value="MITSUBISHI">MITSUBISHI</option>
+                            <option value="HIACE CAJA NUEVA">HIACE CAJA NUEVA</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="botones">
+                    <button class="btn btn-verde" onclick="crearFichaDesdeRendimiento(false)">
+                        Crear y guardar
+                    </button>
+
+                    <button class="btn btn-morado" onclick="crearFichaDesdeRendimiento(true)">
+                        Crear y editar
+                    </button>
+                </div>
+            </div>
+
+            <div class="botones">
+                <button class="btn btn-verde" id="btnGuardarConsumo" onclick="guardarConsumoAceite()">Guardar consumo</button>
+                <button class="btn btn-naranja" id="btnCancelarEdicion" onclick="cancelarEdicionAceite()" style="display:none;">Cancelar edición</button>
+                <button class="btn btn-rojo" onclick="limpiarFormularioAceite()">Limpiar</button>
+            </div>
+        </section>
+
+        <!-- TABLA -->
+        <section class="panel">
+            <h2>Listado de rendimiento</h2>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha actual</th>
+                            <th>Ficha</th>
+                            <th>Tipo de guagua</th>
+                            <th>Tipo mantenimiento</th>
+                            <th>Cantidad</th>
+                            <th>KM anterior</th>
+                            <th>KM actual</th>
+                            <th>KM total</th>
+                            <th>Comentario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaRendimientoAceite">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../MENUS.JS"></script>
+<script src="aceite.js"></script>
+
+
+</body>
+</html>

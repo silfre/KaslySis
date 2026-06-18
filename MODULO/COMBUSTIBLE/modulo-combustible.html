@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Módulo de Combustible</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Librería para leer y descargar Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+    <!-- Archivo CSS -->
+  <link rel="stylesheet" href="../MENUS.CSS">
+    <link rel="stylesheet" href="./combustible.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <div id="menuGlobal"></div>
+
+
+
+    <main class="main-content" id="mainContent">
+
+        <section class="topbar">
+            <div>
+                <h1>Módulo de Combustible</h1>
+                <p>Control automático de unidad, marca, chofer, kilometraje, combustible y rendimiento.</p>
+            </div>
+
+            <div class="botones">
+                <button class="btn btn-azul" onclick="document.getElementById('archivoExcel').click()">📤 Subir Excel</button>
+                <button class="btn btn-morado" onclick="abrirModalPlantilla()">📄 Plantilla para subir data</button>
+                <button class="btn btn-verde" onclick="descargarExcel()">📥 Descargar</button>
+                <button class="btn btn-naranja" onclick="verificarDatos()">✅ Verificar</button>
+                <button class="btn btn-morado" onclick="abrirGrafico()">📊 Gráfico</button>
+                <button class="btn btn-rojo" onclick="limpiarTabla()">🗑 Limpiar</button>
+            </div>
+        </section>
+
+        <input type="file" id="archivoExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="leerExcel(event)">
+
+        <section class="cards">
+            <div class="card">
+                <span>Total registros</span>
+                <strong id="cardTotal">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Dentro del rango</span>
+                <strong id="cardDentro">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Sobre el rango</span>
+                <strong id="cardSobre">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Debajo del rango</span>
+                <strong id="cardDebajo">0</strong>
+            </div>
+
+          <div class="card">
+              <span>Inactivo</span>
+                 <strong id="cardInactivo">0</strong>
+                </div>
+        </section>
+
+        <section class="table-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Listado general de combustible</h2>
+                    <p>La marca, conductor, último KM, recorrido, rendimiento, estado y comentario se calculan automáticamente.</p>
+                </div>
+
+                <div class="herramientas">
+                <input class="buscador" id="buscador" type="text" placeholder="Buscar unidad, marca, chofer o fecha..." oninput="buscarEnTabla()">
+                    <button class="btn btn-verde" onclick="agregarFila()">➕ Nuevo registro</button>
+                </div>
+            </div>
+
+            <div class="tabla-toolbar">
+
+                <div class="tabla-paginacion-info">
+                    Mostrar
+
+                    <select id="selectRegistrosPorPagina" onchange="cambiarRegistrosPorPagina(this.value)">
+                        <option value="60">60</option>
+                        <option value="80" selected>80</option>
+                        <option value="90">90</option>
+                        <option value="100">100</option>
+                    </select>
+
+                    registros por hoja
+                </div>
+
+                <div class="tabla-paginacion">
+                    <span id="textoPaginacion">0-0 / 0</span>
+
+                    <button id="btnPrimeraPagina" onclick="irPrimeraPagina()">«</button>
+                    <button id="btnPaginaAnterior" onclick="irPaginaAnterior()">‹</button>
+                    <button id="btnPaginaSiguiente" onclick="irPaginaSiguiente()">›</button>
+                    <button id="btnUltimaPagina" onclick="irUltimaPagina()">»</button>
+                </div>
+
+            </div>
+
+
+
+
+           <div class="table-scroll-area">
+
+    <div class="table-wrapper" id="tableWrapper">
+        <table id="tablaCombustible">
+            <thead>
+                <tr>
+                    <th>FECHA</th>
+                    <th>HORA</th>
+                    <th># UNIDAD</th>
+                    <th>MARCA</th>
+                    <th>CÓDIGO<br>EMPLEADO</th>
+                    <th>CONDUCTOR</th>
+                    <th>KILOMETRAJE<br>ACTUAL</th>
+                    <th>ÚLTIMO<br>KILOMETRAJE</th>
+                    <th>COMBUSTIBLE<br>POR FUERA</th>
+                    <th>COMBUSTIBLE<br>EL MISMO DÍA</th>
+                    <th>COMBUSTIBLE<br>INICIAL</th>
+                    <th>COMBUSTIBLE<br>TOTAL</th>
+                    <th>KILOMETRAJE<br>RECORRIDO</th>
+                    <th>RENDIMIENTO<br>(KM/GAL)</th>
+                    <th>ESTADO<br>DEL RANGO</th>
+                    <th>COMENTARIO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaBody"></tbody>
+        </table>
+    </div>
+
+    <div class="scroll-horizontal-visible" id="scrollHorizontal">
+        <div class="scroll-horizontal-content" id="scrollHorizontalContent"></div>
+    </div>
+
+</div>
+
+            <div class="mensaje" id="mensaje">Sistema listo.</div>
+
+        </section>
+
+    </main>
+</div>
+
+<!-- MODAL GRÁFICO -->
+<!-- MODAL GRÁFICO / REPORTES -->
+<div class="modal" id="modalGrafico">
+    <div class="modal-contenido modal-grafico-contenido">
+
+        <div id="reporteGraficoPDF">
+
+            <div class="titulo-pdf-reporte">
+                <h1>Reporte de Análisis de Combustible</h1>
+                <p>Rendimiento por categoría, unidad y período seleccionado.</p>
+            </div>
+
+            <div class="modal-header modal-grafico-header">
+                <div>
+                    <h2>Análisis de Combustible</h2>
+                    <p class="texto-modal">
+                        Visualiza el rendimiento por categoría, unidad y período de tiempo.
+                    </p>
+                </div>
+
+                <div class="acciones-grafico-superior">
+                    <button class="btn btn-azul" onclick="aplicarFiltrosGrafico()">🔎 Aplicar filtros</button>
+                    <button class="btn btn-rojo" onclick="generarPDFGrafico()">📄 Generar PDF</button>
+                    <button class="btn btn-verde" onclick="exportarDatosGrafico()">📥 Exportar Excel</button>
+                    <button class="btn btn-rojo" onclick="cerrarGrafico()">X Cerrar</button>
+                </div>
+            </div>
+
+            <!-- FILTROS PRINCIPALES -->
+            <div class="filtros-grafico filtros-principales">
+                <div class="campo-filtro">
+                    <label>Fecha desde</label>
+                    <input type="date" id="graficoFechaDesde">
+                </div>
+
+                <div class="campo-filtro">
+                    <label>Fecha hasta</label>
+                    <input type="date" id="graficoFechaHasta">
+                </div>
+
+                <div class="campo-filtro">
+                    <label>Categoría</label>
+                    <select id="graficoCategoria"></select>
+                </div>
+
+                <div class="campo-filtro">
+                    <label>Comentario</label>
+                    <select id="graficoComentario">
+                        <option value="Mantener" selected>Mantener</option>
+                        <option value="Todos">Todos</option>
+                        <option value="Borrar">Borrar</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- CARDS -->
+            <div class="cards-grafico">
+                <div class="card-grafico">
+                    <span>Promedio rendimiento</span>
+                    <strong id="graficoPromedio">0 km/gal</strong>
+                </div>
+
+                <div class="card-grafico">
+                    <span>Dentro del rango</span>
+                    <strong id="graficoDentro">0</strong>
+                </div>
+
+                <div class="card-grafico">
+                    <span>Sobre el rango</span>
+                    <strong id="graficoSobre">0</strong>
+                </div>
+
+                <div class="card-grafico">
+                    <span>Debajo del rango</span>
+                    <strong id="graficoDebajo">0</strong>
+                </div>
+
+                <div class="card-grafico">
+                    <span>Inactivos</span>
+                    <strong id="graficoInactivos">0</strong>
+                </div>
+            </div>
+
+            <!-- GRÁFICO SUPERIOR -->
+            <div class="grafico-card grafico-principal">
+                <div class="grafico-card-header">
+                    <div>
+                        <h3>Promedio de Rendimiento (km/gal) por Unidad</h3>
+                        <p>Este gráfico muestra todas las unidades de la categoría seleccionada.</p>
+                    </div>
+                </div>
+
+                <div class="canvas-alto">
+                    <canvas id="chartRendimientoUnidad"></canvas>
+                </div>
+            </div>
+
+            <!-- FILTRO INDIVIDUAL DE ABAJO -->
+            <div class="filtros-grafico filtros-detalle">
+                <div class="campo-filtro">
+                    <label>Unidad para análisis individual</label>
+                    <select id="graficoUnidadDetalle" onchange="aplicarFiltroUnidadDetalle()"></select>
+                </div>
+
+                <div class="campo-filtro">
+                    <label>Tipo de vista</label>
+                    <select id="tipoVistaDetalle" onchange="aplicarFiltroUnidadDetalle()">
+                        <option value="linea">Línea</option>
+                        <option value="barra">Barras</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-graficos-secundarios">
+
+                <!-- GRÁFICO INDIVIDUAL -->
+                <div class="grafico-card">
+                    <div class="grafico-card-header">
+                        <div>
+                            <h3>Evolución del Rendimiento por Unidad</h3>
+                            <p>Este gráfico solo toma la unidad seleccionada en el filtro individual.</p>
+                        </div>
+                    </div>
+
+                    <div class="canvas-medio">
+                        <canvas id="chartEvolucion"></canvas>
+                    </div>
+                </div>
+
+                <!-- RESUMEN -->
+                <div class="grafico-card">
+                    <div class="grafico-card-header">
+                        <div>
+                            <h3>Resumen por Categoría</h3>
+                            <p>Promedio, mínimo y máximo.</p>
+                        </div>
+                    </div>
+
+                    <div class="tabla-resumen-wrapper">
+                        <table class="tabla-resumen-grafico">
+                            <thead>
+                                <tr>
+                                    <th>Categoría</th>
+                                    <th>Unidades</th>
+                                    <th>Promedio</th>
+                                    <th>Mínimo</th>
+                                    <th>Máximo</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="tablaResumenCategoria"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="nota-resizable">
+                        ↔ Arrastra los bordes de las columnas de la tabla principal para cambiar su tamaño.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+        <!-- PDF POR CATEGORÍA -->
+       
+
+<!-- MODAL PLANTILLA -->
+<div class="modal" id="modalPlantilla">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h2>Plantilla para subir data</h2>
+            <button class="cerrar" onclick="cerrarModalPlantilla()">X</button>
+        </div>
+
+        <p class="texto-modal">
+            Selecciona la información que vas a subir. El sistema descargará una plantilla en Excel con las columnas en el orden correcto.
+        </p>
+
+        <div class="plantilla-opciones">
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="fecha" checked disabled>
+                FECHA
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="hora" checked disabled>
+                HORA
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="codigoEmpleado" checked disabled>
+                CÓDIGO EMPLEADO
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="kmActual" checked disabled>
+                KM ACTUAL
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="unidad" checked disabled>
+                UNIDAD
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="combInicial" checked disabled>
+                COMBUSTIBLE INICIAL
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="combPorFuera">
+                COMBUSTIBLE POR FUERA
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="combMismoDia">
+                COMBUSTIBLE MISMO DÍA
+            </label>
+
+            <label class="opcion-plantilla">
+                <input type="checkbox" class="campo-plantilla" value="kmInicial">
+                KILÓMETRO INICIAL
+            </label>
+
+        </div>
+
+        <div class="nota-plantilla">
+            Orden obligatorio para subir: FECHA → HORA → CÓDIGO EMPLEADO → KM ACTUAL → UNIDAD → COMBUSTIBLE INICIAL.
+            <br>
+            Si el archivo no está en ese orden, el sistema no lo cargará.
+        </div>
+
+        <div class="botones-modal">
+            <button class="btn btn-rojo" onclick="cerrarModalPlantilla()">Cancelar</button>
+            <button class="btn btn-verde" onclick="descargarPlantillaSubida()">📥 Descargar plantilla</button>
+        </div>
+    </div>
+</div>
+
+<!-- Archivo JavaScript -->
+<script src="../MENUS.JS"></script>
+<script src="combustible.js"></script>
+
+</body>
+</html>

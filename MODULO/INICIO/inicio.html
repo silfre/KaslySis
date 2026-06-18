@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio - KashlySys</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PROTEGER PÁGINA -->
+    <script>
+        if (localStorage.getItem("kashly_sesion_activa") !== "SI") {
+            window.location.href = "../LOGIN/index.html";
+        }
+    </script>
+
+    <link rel="stylesheet" href="inicio.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- MENÚ LATERAL -->
+    <aside class="sidebar" id="sidebar">
+
+        <button type="button" class="btn-menu" onclick="alternarMenu()">
+            ☰
+        </button>
+
+        <div class="logo">
+            <div class="logo-icono">K</div>
+            <div>
+                <div class="logo-texto">
+                    Kashly<span>Sys</span>
+                </div>
+                <small>Sistema Administrativo</small>
+            </div>
+        </div>
+
+        <div class="menu-titulo">MENÚ PRINCIPAL</div>
+
+        <nav class="menu">
+
+            <a href="../INICIO/index.html" class="menu-link activo">
+                <span class="menu-icono">🏠</span>
+                <span class="menu-texto">Inicio</span>
+            </a>
+
+            <!-- MANTENIMIENTO -->
+            <div class="menu-grupo">
+                <div class="menu-padre">
+                    <a href="../MANTENIMIENTO/mantenimiento.html" class="menu-link">
+                        <span class="menu-icono">🛠️</span>
+                        <span class="menu-texto">Mantenimiento</span>
+                    </a>
+
+                    <button type="button" class="btn-submenu" onclick="toggleSubmenu(this)">
+                        ▾
+                    </button>
+                </div>
+
+                <div class="submenu">
+                    <a href="../MANTENIMIENTO/mantenimiento.html">Mantenimiento General</a>
+                    <a href="../MANTENIMIENTO/MantenimientoPendiente.html">Mantenimiento Pendiente</a>
+                </div>
+            </div>
+
+            <!-- COMBUSTIBLE -->
+            <div class="menu-grupo">
+                <div class="menu-padre">
+                    <a href="../COMBUSTIBLE/modulo-combustible.html" class="menu-link">
+                        <span class="menu-icono">⛽</span>
+                        <span class="menu-texto">Combustible</span>
+                    </a>
+
+                    <button type="button" class="btn-submenu" onclick="toggleSubmenu(this)">
+                        ▾
+                    </button>
+                </div>
+
+                <div class="submenu">
+                    <a href="../COMBUSTIBLE/modulo-combustible.html">Rendimiento Combustible</a>
+                    <a href="../COMBUSTIBLE/entrada-combustible.html">Entrada Combustible</a>
+                    <a href="../COMBUSTIBLE/reporte-combustible.html">Reporte Combustible</a>
+                </div>
+            </div>
+
+            <!-- PIEZAS -->
+            <div class="menu-grupo">
+                <div class="menu-padre">
+                    <a href="../PIEZAS/PIEZAS.HTML" class="menu-link">
+                        <span class="menu-icono">⚙️</span>
+                        <span class="menu-texto">Piezas</span>
+                    </a>
+
+                    <button type="button" class="btn-submenu" onclick="toggleSubmenu(this)">
+                        ▾
+                    </button>
+                </div>
+
+                <div class="submenu">
+                    <a href="../PIEZAS/PIEZAS.HTML">Inicio Piezas</a>
+                    <a href="../PIEZAS/GOMA.HTML">Goma</a>
+            
+                </div>
+            </div>
+
+
+            <!-- ACIETE -->
+            <div class="menu-grupo">
+                <div class="menu-padre">
+                    <a href="../RENDIMIENTO DE ACEITE/RENDIMIENTO_ACEITE.html" class="menu-link">
+                        <span class="menu-icono">A</span>
+                        <span class="menu-texto">ACEITE</span>
+                    </a>
+
+                    <button type="button" class="btn-submenu" onclick="toggleSubmenu(this)">
+                        ▾
+                    </button>
+                </div>
+
+                <div class="submenu">
+            
+                    <a href="../RENDIMIENTO DE ACEITE/RENDIMIENTO_ACEITE.html">Aceite</a>
+                    <a href="../RENDIMIENTO DE ACEITE/compra-tanque.html">Compra Tanque</a>
+                    <a href="../RENDIMIENTO DE ACEITE/reporte-tanque.html">Reporte Tanque</a>
+
+                </div>
+            </div>
+            
+            <!-- OPERACIONES -->
+            <div class="menu-grupo">
+                <div class="menu-padre">
+                    <a href="../PINTURA/pintura.html" class="menu-link">
+                        <span class="menu-icono">🎨</span>
+                        <span class="menu-texto">Operaciones</span>
+                    </a>
+
+                    <button type="button" class="btn-submenu" onclick="toggleSubmenu(this)">
+                        ▾
+                    </button>
+                </div>
+
+                <div class="submenu">
+                    <a href="../PINTURA/pintura.html">Pintura</a>
+                    <a href="../CHOQUES/choques-unidad.html">Choques por Unidad</a>
+                    <a href="../CHOQUES/choques-chofer.html">Choques por Chofer</a>
+                    <a href="../ALQUILER/unidades-alquiladas.html">Unidades Alquiladas</a>
+                    <a href="../LIMPIEZA/limpieza-fumigacion.html">Limpieza / Fumigación</a>
+                </div>
+            </div>
+
+            <!-- ADMINISTRACIÓN -->
+            <div class="menu-grupo">
+                <div class="menu-padre">
+                    <a href="../DATO/modulo_unidades.html" class="menu-link">
+                        <span class="menu-icono">📁</span>
+                        <span class="menu-texto">Administración</span>
+                    </a>
+
+                    <button type="button" class="btn-submenu" onclick="toggleSubmenu(this)">
+                        ▾
+                    </button>
+                </div>
+
+                <div class="submenu">
+                    <a href="../DATO/modulo_unidades.html">Unidades / Datos</a>
+                    <a href="../EMPLEADOS/empleados.html">Empleados</a>
+                    <a href="../CAJA_CHICA/caja-chica.html">Caja Chica</a>
+                </div>
+            </div>
+
+            <!-- HERRAMIENTAS -->
+            <div class="menu-grupo">
+                <div class="menu-padre">
+                    <a href="../BUSQUEDA/busqueda.html" class="menu-link">
+                        <span class="menu-icono">🔎</span>
+                        <span class="menu-texto">Herramientas</span>
+                    </a>
+
+                    <button type="button" class="btn-submenu" onclick="toggleSubmenu(this)">
+                        ▾
+                    </button>
+                </div>
+
+                <div class="submenu">
+                    <a href="../BUSQUEDA/busqueda.html">Búsqueda</a>
+                    <a href="../ETIQUETAS/etiquetas.html">Etiquetas</a>
+                    <a href="../CHAT/chat.html">Chat</a>
+                    <a href="../IA/ia-consultas.html">IA Consultas</a>
+                </div>
+            </div>
+
+        </nav>
+
+        <div class="usuario-box">
+            <div class="usuario-avatar">👤</div>
+            <div>
+                <strong id="nombreUsuario">Administrador</strong>
+                <small>Sesión activa</small>
+            </div>
+
+            <button type="button" onclick="cerrarSesion()" title="Cerrar sesión">
+                ⏻
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+
+        <!-- TOPBAR -->
+        <section class="topbar">
+            <div>
+                <h1>¡Bienvenido, Administrador!</h1>
+                <p>Resumen general de operaciones del sistema.</p>
+            </div>
+
+            <div class="topbar-derecha">
+                <div class="topbar-item">📅 <span id="fechaActual">--/--/----</span></div>
+                <div class="topbar-item">🕒 <span id="horaActual">--:--</span></div>
+                <button class="btn-notificacion">🔔 <span>3</span></button>
+            </div>
+        </section>
+
+        <!-- CARDS -->
+        <section class="cards-dashboard">
+
+            <div class="card-dashboard azul">
+                <div>
+                    <span>Unidades Activas</span>
+                    <strong id="cardUnidadesActivas">18</strong>
+                    <p>De 24 unidades totales</p>
+                </div>
+                <div class="card-icono">🚌</div>
+            </div>
+
+            <div class="card-dashboard verde">
+                <div>
+                    <span>Mantenimientos Este Mes</span>
+                    <strong id="cardMantenimientosMes">12</strong>
+                    <p>+20% vs. mes anterior</p>
+                </div>
+                <div class="card-icono">✅</div>
+            </div>
+
+            <div class="card-dashboard morado">
+                <div>
+                    <span>Mantenimientos Pendientes</span>
+                    <strong id="cardMantenimientosPendientes">5</strong>
+                    <p>Requieren atención</p>
+                </div>
+                <div class="card-icono">🛠️</div>
+            </div>
+
+            <div class="card-dashboard naranja">
+                <div>
+                    <span>Gasto Combustible Mes</span>
+                    <strong id="cardGastoCombustible">$1,250.00</strong>
+                    <p>+8% vs. mes anterior</p>
+                </div>
+                <div class="card-icono">⛽</div>
+            </div>
+
+        </section>
+
+        <!-- GRID PRINCIPAL -->
+        <section class="grid-dashboard">
+
+            <!-- TABLA -->
+            <div class="panel-dashboard panel-grande">
+                <div class="panel-header">
+                    <div>
+                        <h2>📋 Últimos mantenimientos registrados</h2>
+                        <p>Vista rápida de los movimientos recientes.</p>
+                    </div>
+
+                    <a href="../MANTENIMIENTO/mantenimiento.html" class="btn-ver-todos">
+                        Ver todos →
+                    </a>
+                </div>
+
+                <div class="tabla-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Unidad</th>
+                                <th>Tipo</th>
+                                <th>KM</th>
+                                <th>Empleado</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>01/05/2026</td>
+                                <td>14:27</td>
+                                <td>T98</td>
+                                <td><span class="badge azul">Preventivo</span></td>
+                                <td>312,477</td>
+                                <td>Juan Pérez</td>
+                                <td>Cambio de aceite y filtro</td>
+                                <td><span class="badge verde">Completado</span></td>
+                            </tr>
+
+                            <tr>
+                                <td>01/05/2026</td>
+                                <td>10:15</td>
+                                <td>U15</td>
+                                <td><span class="badge morado">Correctivo</span></td>
+                                <td>145,230</td>
+                                <td>María Gómez</td>
+                                <td>Revisión de frenos</td>
+                                <td><span class="badge verde">Completado</span></td>
+                            </tr>
+
+                            <tr>
+                                <td>30/04/2026</td>
+                                <td>09:20</td>
+                                <td>U07</td>
+                                <td><span class="badge naranja">Pendiente</span></td>
+                                <td>98,765</td>
+                                <td>Luis Torres</td>
+                                <td>Cambio de neumáticos</td>
+                                <td><span class="badge naranja">Pendiente</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ALERTAS -->
+            <div class="panel-dashboard">
+                <div class="panel-header">
+                    <h2>⚠️ Alertas importantes</h2>
+                    <a href="#" class="btn-ver-todos">Ver todas</a>
+                </div>
+
+                <div class="lista-alertas">
+
+                    <div class="alerta-item alerta-naranja">
+                        <div class="alerta-icono">⚠️</div>
+                        <div>
+                            <strong>5 mantenimientos pendientes</strong>
+                            <p>Requieren atención inmediata</p>
+                        </div>
+                        <span>›</span>
+                    </div>
+
+                    <div class="alerta-item alerta-roja">
+                        <div class="alerta-icono">🚨</div>
+                        <div>
+                            <strong>2 unidades con documentos por vencer</strong>
+                            <p>Revisión necesaria</p>
+                        </div>
+                        <span>›</span>
+                    </div>
+
+                    <div class="alerta-item alerta-azul">
+                        <div class="alerta-icono">ℹ️</div>
+                        <div>
+                            <strong>Stock bajo en piezas</strong>
+                            <p>12 repuestos con inventario bajo</p>
+                        </div>
+                        <span>›</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RESUMEN RÁPIDO -->
+        <section class="panel-dashboard resumen-rapido">
+            <h2>📈 Resumen rápido</h2>
+
+            <div class="resumen-grid">
+
+                <div class="resumen-item">
+                    <span>KM recorridos mes</span>
+                    <strong>7,842</strong>
+                    <p class="positivo">+12% vs. mes anterior</p>
+                </div>
+
+                <div class="resumen-item">
+                    <span>Combustible utilizado</span>
+                    <strong>620.50 Gal</strong>
+                    <p class="positivo">+5% vs. mes anterior</p>
+                </div>
+
+                <div class="resumen-item">
+                    <span>Rendimiento promedio</span>
+                    <strong>6.55 km/gal</strong>
+                    <p class="positivo">+3% vs. mes anterior</p>
+                </div>
+
+                <div class="resumen-item">
+                    <span>Costo por KM</span>
+                    <strong>$0.20</strong>
+                    <p class="negativo">-2% vs. mes anterior</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<script src="inicio.js"></script>
+
+</body>
+</html>

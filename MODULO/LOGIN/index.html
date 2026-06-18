@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión - KashlySys</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="login-page">
+
+        <section class="login-card">
+
+            <div class="login-logo">
+                <div class="logo-circulo">K</div>
+                <h1>KashlySys</h1>
+                <p>Sistema Administrativo</p>
+            </div>
+
+            <form id="formLogin" class="login-form">
+
+                <div class="form-grupo">
+                    <label>Usuario</label>
+                    <input 
+                        type="text" 
+                        id="usuario" 
+                        placeholder="Ej: admin"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-grupo">
+                    <label>Contraseña</label>
+                    <div class="password-box">
+                        <input 
+                            type="password" 
+                            id="clave" 
+                            placeholder="Ingrese su contraseña"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button type="button" onclick="mostrarClave()" class="btn-ver-clave">
+                            👁
+                        </button>
+                    </div>
+                </div>
+
+                <div class="opciones-login">
+                    <label>
+                        <input type="checkbox" id="recordarUsuario">
+                        Recordar usuario
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Iniciar Sesión
+                </button>
+
+                <p id="mensajeLogin" class="mensaje-login"></p>
+
+            </form>
+
+            <div class="login-footer">
+                <span>Versión 1.0.0</span>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

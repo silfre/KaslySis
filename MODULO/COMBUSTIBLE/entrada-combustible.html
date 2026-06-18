@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrada de Combustible</title>
+
+
+ <link rel="stylesheet" href="../MENUS.CSS" />
+<link rel="stylesheet" href="entrada-combustible.css" />
+
+
+</head>
+<script src="../BASE_DATOS/database.js"></script>
+<body>
+  <div class="layout">
+  
+     <div id="menuGlobal"></div>
+
+
+    <!-- MAIN -->
+<main class="main-content" id="mainContent">
+      <section class="topbar card">
+        <div>
+          <h1>Entrada de Combustible</h1>
+          <p>
+            Registro del combustible comprado, medición del tanque antes y después del llenado,
+            evidencias fotográficas y verificación de galones recibidos.
+          </p>
+        </div>
+
+        <div class="top-actions">
+          <button class="btn btn-primary" id="btnGuardar">💾 Guardar registro</button>
+          <button class="btn btn-secondary" id="btnLimpiar">🧹 Limpiar</button>
+        </div>
+      </section>
+
+      <!-- DATOS GENERALES -->
+      <section class="card">
+        <div class="section-title">
+          <h2>Datos Generales de la Compra</h2>
+        </div>
+
+        <div class="form-grid form-grid-4">
+          <div class="form-group">
+            <label for="selectUnidad">Unidad 🚌</label>
+            <select id="selectUnidad" required>
+              <option value="">-- Selecciona Unidad --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="fechaRegistro">Fecha</label>
+            <input type="date" id="fechaRegistro" />
+          </div>
+
+          <div class="form-group">
+            <label for="suplidor">Suplidor</label>
+            <input type="text" id="suplidor" placeholder="Ej.: COMDELA / Estación / Proveedor" />
+          </div>
+
+          <div class="form-group">
+            <label for="factura">No. Factura / Referencia</label>
+            <input type="text" id="factura" placeholder="Escribe referencia" />
+          </div>
+
+          <div class="form-group">
+            <label for="combustibleTipo">Tipo de combustible</label>
+            <select id="combustibleTipo">
+              <option value="Gasoil">Gasoil</option>
+              <option value="Gasolina">Gasolina</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="cantidadComprada">Cantidad comprada (GL)</label>
+            <input type="number" id="cantidadComprada" step="0.01" placeholder="0.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="precioUnitario">Precio promedio unitario (RD$)</label>
+            <input type="number" id="precioUnitario" step="0.01" placeholder="0.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="montoComprado">Monto comprado (RD$)</label>
+            <input type="text" id="montoComprado" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="kmActual">KM Actual (para sincronizar) 📊</label>
+            <input type="number" id="kmActual" placeholder="Ej: 150500" />
+          </div>
+
+          <div class="form-group">
+            <label for="observacionGeneral">Observación general</label>
+            <input type="text" id="observacionGeneral" placeholder="Escribe una observación general" />
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUMEN -->
+      <section class="summary-grid">
+        <div class="summary-card">
+          <span>GALONES ANTES</span>
+          <strong id="resGalAntes">0.00 GL</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>GALONES DESPUÉS</span>
+          <strong id="resGalDespues">0.00 GL</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>GL RECIBIDOS EN TANQUE</span>
+          <strong id="resGlRecibidos">0.00 GL</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>DIFERENCIA VS COMPRA</span>
+          <strong id="resDiferencia">0.00 GL</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>ESTADO</span>
+          <strong id="resEstado">PENDIENTE</strong>
+        </div>
+      </section>
+
+      <!-- ETAPA 1 -->
+      <section class="card stage-card">
+        <div class="stage-head">
+          <div class="stage-number">1</div>
+          <div>
+            <h2>Camión Lleno</h2>
+            <p>Evidencias del camión con combustible antes de descargar.</p>
+          </div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Fotos del camión lleno (5)</h3>
+          <div id="camionLlenoFotos" class="upload-grid"></div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Fotos de la boquilla del camión (2)</h3>
+          <div id="camionLlenoBoquillas" class="upload-grid grid-2"></div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Fotos de la vara luego de medir cada boquilla (2)</h3>
+          <div id="camionLlenoVaras" class="upload-grid grid-2"></div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Foto extra / moca (1)</h3>
+          <div id="camionLlenoExtra" class="upload-grid grid-1"></div>
+        </div>
+      </section>
+
+      <!-- ETAPA 2 -->
+      <section class="card stage-card">
+        <div class="stage-head">
+          <div class="stage-number">2</div>
+          <div>
+            <h2>Tanque Antes del Llenado</h2>
+            <p>Se registra el estado del tanque antes de descargar el combustible.</p>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid-4">
+          <div class="form-group">
+            <label for="medidaAntes">Medida de la vara antes</label>
+            <input type="text" id="medidaAntes" placeholder="Ej.: 17.375" />
+          </div>
+
+          <div class="form-group">
+            <label for="galonesAntes">Galones antes (según tabla)</label>
+            <input type="number" id="galonesAntes" step="0.01" placeholder="0.00" />
+          </div>
+
+          <div class="form-group form-span-2">
+            <label for="notaAntes">Nota / validación antes del llenado</label>
+            <input type="text" id="notaAntes" placeholder="Escribe una nota si aplica" />
+          </div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Foto de la manguera abajo (1)</h3>
+          <div id="tanqueAntesManguera" class="upload-grid grid-1"></div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Fotos de la vara (2)</h3>
+          <div id="tanqueAntesVara" class="upload-grid grid-2"></div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Captura de evidencia de que la medida es correcta (1)</h3>
+          <div id="tanqueAntesEvidencia" class="upload-grid grid-1"></div>
+        </div>
+      </section>
+
+      <!-- ETAPA 3 -->
+      <section class="card stage-card">
+        <div class="stage-head">
+          <div class="stage-number">3</div>
+          <div>
+            <h2>Camión Vacío</h2>
+            <p>Evidencia de que el camión quedó descargado.</p>
+          </div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Fotos de cada boquilla del camión vacío (2)</h3>
+          <div id="camionVacioBoquillas" class="upload-grid grid-2"></div>
+        </div>
+      </section>
+
+      <!-- ETAPA 4 -->
+      <section class="card stage-card">
+        <div class="stage-head">
+          <div class="stage-number">4</div>
+          <div>
+            <h2>Tanque Luego del Llenado</h2>
+            <p>Se registra el estado del tanque después del llenado para validar la compra.</p>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid-4">
+          <div class="form-group">
+            <label for="medidaDespues">Medida de la vara después</label>
+            <input type="text" id="medidaDespues" placeholder="Ej.: 18.625" />
+          </div>
+
+          <div class="form-group">
+            <label for="galonesDespues">Galones después (según tabla)</label>
+            <input type="number" id="galonesDespues" step="0.01" placeholder="0.00" />
+          </div>
+
+          <div class="form-group form-span-2">
+            <label for="notaDespues">Nota / validación después del llenado</label>
+            <input type="text" id="notaDespues" placeholder="Escribe una nota si aplica" />
+          </div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Foto de la manguera abajo (1)</h3>
+          <div id="tanqueDespuesManguera" class="upload-grid grid-1"></div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Fotos de la vara (2)</h3>
+          <div id="tanqueDespuesVara" class="upload-grid grid-2"></div>
+        </div>
+
+        <div class="upload-block">
+          <h3>Captura de evidencia de que la medida es correcta (1)</h3>
+          <div id="tanqueDespuesEvidencia" class="upload-grid grid-1"></div>
+        </div>
+      </section>
+
+      <!-- CÁLCULO FINAL -->
+      <section class="card">
+        <div class="section-title">
+          <h2>Resultado de Verificación</h2>
+          <p>Se compara la cantidad comprada contra el aumento de galones en el tanque.</p>
+        </div>
+
+        <div class="result-panel">
+          <div class="result-row">
+            <span>Galones antes del llenado</span>
+            <strong id="txtGalAntes">0.00 GL</strong>
+          </div>
+
+          <div class="result-row">
+            <span>Galones luego del llenado</span>
+            <strong id="txtGalDespues">0.00 GL</strong>
+          </div>
+
+          <div class="result-row">
+            <span>Galones recibidos en el tanque (Después - Antes)</span>
+            <strong id="txtGlRecibidos">0.00 GL</strong>
+          </div>
+
+          <div class="result-row">
+            <span>Cantidad comprada</span>
+            <strong id="txtComprados">0.00 GL</strong>
+          </div>
+
+          <div class="result-row result-highlight">
+            <span>Diferencia de validación (Comprados - Recibidos)</span>
+            <strong id="txtDiferenciaFinal">0.00 GL</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGISTROS -->
+      <section class="card">
+        <div class="section-title row-between">
+          <div>
+            <h2>Registros Guardados</h2>
+            <p>Se guardan localmente en este navegador.</p>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="records-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Suplidor</th>
+                <th>Factura</th>
+                <th>Comprado</th>
+                <th>Precio Unitario</th>
+                <th>Monto</th>
+                <th>GL Antes</th>
+                <th>GL Después</th>
+                <th>GL Recibidos</th>
+                <th>Diferencia</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRegistros">
+              <tr>
+                <td colspan="12" class="empty-row">No hay registros guardados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL IMAGEN -->
+  <div class="image-modal" id="imageModal">
+    <div class="image-modal-content">
+      <button class="close-modal" id="closeModal">✕</button>
+      <img id="modalImage" src="" alt="Vista previa grande" />
+      <p id="modalCaption"></p>
+    </div>
+  </div>
+
+ <script src="../MENUS.JS"></script>
+<script src="entrada-combustible.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

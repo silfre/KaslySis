@@ -1,0 +1,499 @@
+/* ========================================
+   ESTILOS MÓDULO DE MANTENIMIENTO
+   ======================================== */
+
+:root {
+    --color-principal: #2196F3;
+    --color-exito: #4CAF50;
+    --color-peligro: #f44336;
+    --color-advertencia: #ff9800;
+    --color-gris: #9E9E9E;
+    --color-fondo: #f5f5f5;
+    --color-texto: #333;
+    --color-borde: #ddd;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--color-fondo);
+    color: var(--color-texto);
+}
+
+/* Layout */
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* Topbar */
+.topbar {
+    background: white;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-borde);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.topbar h1 {
+    font-size: 28px;
+    margin: 0;
+}
+
+.topbar p {
+    color: #666;
+    margin: 5px 0 0 0;
+}
+
+.botones {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Botones */
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.btn-azul { background: #2196F3; color: white; }
+.btn-azul:hover { background: #1976D2; }
+
+.btn-verde { background: #4CAF50; color: white; }
+.btn-verde:hover { background: #45a049; }
+
+.btn-rojo { background: #f44336; color: white; }
+.btn-rojo:hover { background: #da190b; }
+
+.btn-naranja { background: #ff9800; color: white; }
+.btn-naranja:hover { background: #e68900; }
+
+.btn-gris { background: #9E9E9E; color: white; }
+.btn-gris:hover { background: #757575; }
+
+/* Cards */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background: white;
+}
+
+.card {
+    background: linear-gradient(135deg,  #06152a, #092746 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card span {
+    display: block;
+    font-size: 12px;
+    opacity: 0.9;
+    margin-bottom: 10px;
+}
+
+.card strong {
+    display: block;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* Tabla */
+.table-panel {
+    background: white;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.panel-header h2 {
+    margin: 0;
+}
+
+.panel-header p {
+    margin: 5px 0 0 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.herramientas {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.buscador {
+    padding: 10px;
+    border: 1px solid var(--color-borde);
+    border-radius: 5px;
+    width: 300px;
+    font-size: 14px;
+}
+
+.tabla-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.tabla-paginacion-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tabla-paginacion-info select {
+    padding: 5px;
+    border: 1px solid var(--color-borde);
+    border-radius: 3px;
+}
+
+.tabla-paginacion {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.tabla-paginacion button {
+    padding: 8px 12px;
+    border: 1px solid var(--color-borde);
+    background: white;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s;
+}
+
+.tabla-paginacion button:hover:not(:disabled) {
+    background: var(--color-principal);
+    color: white;
+}
+
+.tabla-paginacion button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tabla-datos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabla-datos thead {
+    background: #f5f5f5;
+}
+
+.tabla-datos th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--color-borde);
+}
+
+.tabla-datos td {
+    padding: 12px;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.tabla-datos tr:hover {
+    background: #f9f9f9;
+}
+
+.tabla-datos .numero {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+}
+
+.acciones {
+    display: flex;
+    gap: 5px;
+}
+
+.accion {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.accion-ver {
+    background: #2196F3;
+    color: white;
+}
+
+.accion-ver:hover {
+    background: #1976D2;
+}
+
+.accion-editar {
+    background: #ff9800;
+    color: white;
+}
+
+.accion-editar:hover {
+    background: #e68900;
+}
+
+.accion-borrar {
+    background: #f44336;
+    color: white;
+}
+
+.accion-borrar:hover {
+    background: #da190b;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 200;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    overflow: auto;
+}
+
+.modal.activo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-contenido {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--color-borde);
+}
+
+.modal-header h2 {
+    margin: 0;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+}
+
+.btn-cerrar:hover {
+    color: #000;
+}
+
+/* Formulario */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-grupo label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-grupo input,
+.form-grupo select,
+.form-grupo textarea {
+    padding: 10px;
+    border: 1px solid var(--color-borde);
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus,
+.form-grupo textarea:focus {
+    outline: none;
+    border-color: var(--color-principal);
+    box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-acciones {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-combustible {
+    background: #FFE082;
+    color: #333;
+}
+
+.badge-piezas {
+    background: #90CAF9;
+    color: white;
+}
+
+.badge-goma {
+    background: #81C784;
+    color: white;
+}
+
+.badge-aceite {
+    background: #A1887F;
+    color: white;
+}
+
+.badge-mecanica {
+    background: #64B5F6;
+    color: white;
+}
+
+.badge-electrico {
+    background: #FFD54F;
+    color: #333;
+}
+
+.badge-suspension {
+    background: #BA68C8;
+    color: white;
+}
+
+.badge-frenos {
+    background: #EF5350;
+    color: white;
+}
+
+.badge-otro {
+    background: #9E9E9E;
+    color: white;
+}
+
+.badge-completado {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .botones {
+        width: 100%;
+    }
+
+    .tabla-datos {
+        font-size: 12px;
+    }
+
+    .tabla-datos th,
+    .tabla-datos td {
+        padding: 8px;
+    }
+
+    .buscador {
+        width: 100%;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .herramientas {
+        width: 100%;
+        flex-direction: column;
+    }
+}
