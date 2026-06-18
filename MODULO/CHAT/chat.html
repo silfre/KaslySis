@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Grupal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../MENUS.CSS">
+    <link rel="stylesheet" href="chat.css">
+    <script src="../BASE_DATOS/database.js"></script>
+</head>
+
+<body>
+
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <button class="btn-menu" onclick="alternarMenu()">☰</button>
+        <div class="logo"><div class="logo-icono">K</div><div class="logo-texto">KashlySys</div></div>
+        <nav class="menu">
+            <a href="../INICIO/index.html" class="menu-item"><span class="menu-icono">🏠</span><span class="menu-texto">Inicio</span></a>
+            <a href="chat.html" class="menu-item activo"><span class="menu-icono">💬</span><span class="menu-texto">Chat Grupal</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <section class="topbar">
+            <div><h1>Chat Grupal por Departamento</h1></div>
+        </section>
+
+        <section class="chat-container">
+            <div class="chat-sidebar">
+                <h3>Departamentos</h3>
+                <button class="dept-btn" onclick="cambiarDept('operacion')">🚌 Operación</button>
+                <button class="dept-btn" onclick="cambiarDept('mantenimiento')">🔧 Mantenimiento</button>
+                <button class="dept-btn" onclick="cambiarDept('administracion')">📊 Administración</button>
+                <button class="dept-btn" onclick="cambiarDept('general')">👥 General</button>
+            </div>
+
+            <div class="chat-messages">
+                <div class="mensajes" id="mensajesContainer"></div>
+                <div class="chat-input">
+                    <input type="text" id="inputMensaje" placeholder="Escribe un mensaje..." onkeypress="enviarSiEnter(event)">
+                    <button onclick="enviarMensaje()" class="btn btn-azul">Enviar</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="chat.js"></script>
+</body>
+</html>

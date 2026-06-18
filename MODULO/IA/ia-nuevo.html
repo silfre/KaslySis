@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Consultas Inteligentes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../MENUS.CSS">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="btn-menu" onclick="alternarMenu()" title="Abrir/Cerrar menú">☰</button>
+      <div class="brand">
+        <div class="brand-icon">K</div>
+        <div class="brand-text">KashlySys</div>
+      </div>
+      <nav class="menu">
+        <a href="../INICIO/index.html" class="menu-item">
+          <span class="menu-emoji">🏠</span>
+          <span class="menu-text">Inicio</span>
+        </a>
+        <a href="ia-nuevo.html" class="menu-item active">
+          <span class="menu-emoji">🤖</span>
+          <span class="menu-text">IA Consultas</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+      <section class="topbar card">
+        <div>
+          <h1>🤖 Consultas Inteligentes</h1>
+          <p>Obtén información rápida del sistema con preguntas en lenguaje natural</p>
+        </div>
+      </section>
+
+      <section class="card" style="background: white; padding: 20px; margin: 20px; border-radius: 8px;">
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 16px;">Escribe tu consulta:</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="consultaInput" placeholder="Ej: ¿Cuántos cambios de aceite hay este mes?" style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+            <button onclick="procesarConsulta()" style="background: #2196F3; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">🔍 Consultar</button>
+          </div>
+        </div>
+
+        <div id="resultadoConsulta" style="display: none; background: #f5f5f5; padding: 15px; border-radius: 5px; margin-top: 20px;">
+          <h3 style="margin-top: 0; color: #667eea;">Resultado:</h3>
+          <div id="textoResultado" style="font-size: 14px; line-height: 1.6;"></div>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+          <h3>📋 Ejemplos de consultas:</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+            <button onclick="document.getElementById('consultaInput').value = '¿Cuál es el total de gasto en combustible?'; procesarConsulta()" style="text-align: left; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; hover: background #e0e0e0;">
+              💰 "¿Cuál es el total de gasto en combustible?"
+            </button>
+            <button onclick="document.getElementById('consultaInput').value = '¿Cuántas unidades hay en mantenimiento?'; procesarConsulta()" style="text-align: left; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+              🚌 "¿Cuántas unidades hay en mantenimiento?"
+            </button>
+            <button onclick="document.getElementById('consultaInput').value = '¿Cuántos cambios de aceite se realizaron este mes?'; procesarConsulta()" style="text-align: left; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+              🛢️ "¿Cuántos cambios de aceite este mes?"
+            </button>
+            <button onclick="document.getElementById('consultaInput').value = '¿Cuál es la unidad con más reparaciones?'; procesarConsulta()" style="text-align: left; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+              🔧 "¿Cuál unidad tiene más reparaciones?"
+            </button>
+            <button onclick="document.getElementById('consultaInput').value = '¿Cuántos empleados activos hay?'; procesarConsulta()" style="text-align: left; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+              👥 "¿Cuántos empleados activos hay?"
+            </button>
+            <button onclick="document.getElementById('consultaInput').value = '¿Cuál es el stock de piezas más bajo?'; procesarConsulta()" style="text-align: left; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+              📦 "¿Cuál es el stock más bajo?"
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="background: white; padding: 20px; margin: 20px; border-radius: 8px;">
+        <h3>📊 Estadísticas Rápidas:</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+            <span style="display: block; font-size: 12px; color: #666;">Total Unidades</span>
+            <strong id="stat_unidades" style="display: block; font-size: 20px; margin-top: 5px;">-</strong>
+          </div>
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+            <span style="display: block; font-size: 12px; color: #666;">Total Empleados</span>
+            <strong id="stat_empleados" style="display: block; font-size: 20px; margin-top: 5px;">-</strong>
+          </div>
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+            <span style="display: block; font-size: 12px; color: #666;">Registros Combustible</span>
+            <strong id="stat_combustible" style="display: block; font-size: 20px; margin-top: 5px;">-</strong>
+          </div>
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+            <span style="display: block; font-size: 12px; color: #666;">Cambios de Aceite</span>
+            <strong id="stat_aceite" style="display: block; font-size: 20px; margin-top: 5px;">-</strong>
+          </div>
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+            <span style="display: block; font-size: 12px; color: #666;">Cambios de Goma</span>
+            <strong id="stat_goma" style="display: block; font-size: 20px; margin-top: 5px;">-</strong>
+          </div>
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+            <span style="display: block; font-size: 12px; color: #666;">Piezas Registradas</span>
+            <strong id="stat_piezas" style="display: block; font-size: 20px; margin-top: 5px;">-</strong>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../BASE_DATOS/database.js"></script>
+  <script src="../MENUS.JS"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarBD();
+      actualizarEstadisticas();
+    });
+
+    function actualizarEstadisticas() {
+      document.getElementById('stat_unidades').textContent = (sistemaBD.unidades || []).length;
+      document.getElementById('stat_empleados').textContent = (sistemaBD.empleados || []).length;
+      document.getElementById('stat_combustible').textContent = (sistemaBD.combustible || []).length;
+      document.getElementById('stat_aceite').textContent = (sistemaBD.aceite || []).length;
+      document.getElementById('stat_goma').textContent = (sistemaBD.goma || []).length;
+      document.getElementById('stat_piezas').textContent = (sistemaBD.piezas || []).length;
+    }
+
+    function procesarConsulta() {
+      const consulta = document.getElementById('consultaInput').value.toLowerCase().trim();
+      if (!consulta) {
+        alert('Por favor escribe una consulta');
+        return;
+      }
+
+      let resultado = analizarConsulta(consulta);
+      mostrarResultado(resultado);
+    }
+
+    function analizarConsulta(consulta) {
+      // Consultas sobre combustible
+      if (consulta.includes('combustible') || consulta.includes('gasolina') || consulta.includes('diesel')) {
+        const combustibles = sistemaBD.combustible || [];
+        const gasto = combustibles.reduce((sum, c) => sum + (c.monto || 0), 0);
+        return `Se han registrado <strong>${combustibles.length}</strong> cargas de combustible con un gasto total de <strong>$${gasto.toFixed(2)}</strong>.`;
+      }
+
+      // Consultas sobre unidades en mantenimiento
+      if ((consulta.includes('unidad') && consulta.includes('mantenimiento')) || (consulta.includes('cuántas') && consulta.includes('mantenimiento'))) {
+        const mantenimientos = sistemaBD.mantenimiento || [];
+        return `Hay <strong>${mantenimientos.length}</strong> registros de mantenimiento en el sistema.`;
+      }
+
+      // Consultas sobre aceite
+      if (consulta.includes('aceite') || consulta.includes('cambio de aceite')) {
+        const aceites = sistemaBD.aceite || [];
+        const gasto = aceites.reduce((sum, a) => sum + (a.monto || 0), 0);
+        return `Se han realizado <strong>${aceites.length}</strong> cambios de aceite con un gasto total de <strong>$${gasto.toFixed(2)}</strong>.`;
+      }
+
+      // Consultas sobre gomas
+      if (consulta.includes('goma') || consulta.includes('gomas') || consulta.includes('llantas')) {
+        const gomas = sistemaBD.goma || [];
+        const gasto = gomas.reduce((sum, g) => sum + (g.monto || 0), 0);
+        return `Se han reemplazado <strong>${gomas.length}</strong> gomas con un costo total de <strong>$${gasto.toFixed(2)}</strong>.`;
+      }
+
+      // Consultas sobre piezas
+      if (consulta.includes('pieza') || consulta.includes('piezas') || consulta.includes('artículo')) {
+        const piezas = sistemaBD.piezas || [];
+        const gasto = piezas.reduce((sum, p) => sum + (p.monto || 0), 0);
+        return `Se han registrado <strong>${piezas.length}</strong> piezas con un gasto acumulado de <strong>$${gasto.toFixed(2)}</strong>.`;
+      }
+
+      // Consultas sobre empleados
+      if (consulta.includes('empleado') || consulta.includes('chofer')) {
+        const empleados = sistemaBD.empleados || [];
+        const activos = empleados.filter(e => e.estado === 'Activo').length;
+        return `Hay <strong>${empleados.length}</strong> empleados registrados, de los cuales <strong>${activos}</strong> están activos.`;
+      }
+
+      // Consultas sobre inventario
+      if (consulta.includes('stock') || consulta.includes('inventario')) {
+        const articulos = sistemaBD.inventario || [];
+        const bajo = articulos.filter(a => a.cantidad <= a.minStock).length;
+        return `Se tienen <strong>${articulos.length}</strong> artículos en inventario. <strong>${bajo}</strong> de ellos tienen stock bajo.`;
+      }
+
+      // Consultas sobre choques
+      if (consulta.includes('choque') || consulta.includes('accidente')) {
+        const choques = sistemaBD.choques || [];
+        const costoTotal = choques.reduce((sum, c) => sum + (c.monto || 0), 0);
+        return `Se han registrado <strong>${choques.length}</strong> choques con un costo total de <strong>$${costoTotal.toFixed(2)}</strong>.`;
+      }
+
+      // Consultas sobre unidades
+      if (consulta.includes('unidad') || consulta.includes('autobús') || consulta.includes('bus')) {
+        const unidades = sistemaBD.unidades || [];
+        return `Se tienen <strong>${unidades.length}</strong> unidades registradas en el sistema.`;
+      }
+
+      // Default
+      return 'Lo siento, no entendí tu consulta. Intenta reformularla o usa uno de los ejemplos sugeridos.';
+    }
+
+    function mostrarResultado(resultado) {
+      const div = document.getElementById('resultadoConsulta');
+      const texto = document.getElementById('textoResultado');
+      texto.innerHTML = resultado;
+      div.style.display = 'block';
+      actualizarEstadisticas();
+    }
+
+    document.getElementById('consultaInput').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        procesarConsulta();
+      }
+    });
+  </script>
+</body>
+</html>

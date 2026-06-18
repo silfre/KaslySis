@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reparaciones 3D - Unidad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS DEL MÓDULO -->
+    <link rel="stylesheet" href="css/reparaciones3d.css">
+
+    <!-- IMPORT MAP PARA THREE.JS -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+
+    <main class="modulo-reparaciones-3d">
+
+        <!-- ENCABEZADO -->
+        <section class="encabezado-reparaciones">
+            <div>
+                <h1>Visual 3D de Reparaciones</h1>
+                <p>Seleccione una ficha y toque las piezas de la guagua para ver marca, kilometraje, estado e historial.</p>
+            </div>
+
+            <div class="buscador-ficha">
+                <input type="text" id="txtFicha" placeholder="Ingrese ficha de la unidad">
+                <button type="button" id="btnBuscarFicha">Buscar</button>
+            </div>
+        </section>
+
+        <!-- CONTENEDOR GENERAL -->
+        <section class="layout-reparaciones">
+
+            <!-- PANEL IZQUIERDO -->
+            <aside class="panel panel-unidad">
+                <h2>Unidad</h2>
+
+                <div class="dato-linea">
+                    <span>Ficha</span>
+                    <strong id="lblFicha">---</strong>
+                </div>
+
+                <div class="dato-linea">
+                    <span>Tipo</span>
+                    <strong id="lblTipo">---</strong>
+                </div>
+
+                <div class="dato-linea">
+                    <span>Marca</span>
+                    <strong id="lblMarcaUnidad">---</strong>
+                </div>
+
+                <div class="dato-linea">
+                    <span>Kilometraje actual</span>
+                    <strong id="lblKmUnidad">---</strong>
+                </div>
+
+                <div class="dato-linea">
+                    <span>Estado</span>
+                    <strong id="lblEstadoUnidad">---</strong>
+                </div>
+
+                <div class="ayuda-panel">
+                    <h3>Cómo usar</h3>
+                    <p>Gire la guagua con el mouse y toque una pieza marcada para ver su información.</p>
+                </div>
+            </aside>
+
+            <!-- VISOR 3D -->
+            <section class="visor-contenedor">
+                <div class="barra-visor">
+                    <div>
+                        <h2>Guagua 3D</h2>
+                        <p id="lblMensaje3D">Cargando modelo 3D...</p>
+                    </div>
+
+                    <div class="acciones-visor">
+                        <button type="button" id="btnCentrarCamara">Centrar cámara</button>
+                        <button type="button" id="btnMostrarPuntos">Ocultar puntos</button>
+                    </div>
+                </div>
+
+                <div id="visor3D"></div>
+            </section>
+
+            <!-- PANEL DERECHO -->
+            <aside class="panel panel-pieza">
+                <h2>Detalle de pieza</h2>
+
+                <div class="pieza-titulo">
+                    <span id="lblSubdivision">Seleccione una pieza</span>
+                    <strong id="lblNombrePieza">---</strong>
+                </div>
+
+                <div class="detalle-card">
+                    <span>Marca</span>
+                    <strong id="lblMarcaPieza">---</strong>
+                </div>
+
+                <div class="detalle-card">
+                    <span>Modelo</span>
+                    <strong id="lblModeloPieza">---</strong>
+                </div>
+
+                <div class="detalle-card">
+                    <span>Posición</span>
+                    <strong id="lblPosicionPieza">---</strong>
+                </div>
+
+                <div class="detalle-card">
+                    <span>KM instalación</span>
+                    <strong id="lblKmInstalacion">---</strong>
+                </div>
+
+                <div class="detalle-card">
+                    <span>KM actual</span>
+                    <strong id="lblKmActual">---</strong>
+                </div>
+
+                <div class="detalle-card">
+                    <span>KM recorrido</span>
+                    <strong id="lblKmRecorrido">---</strong>
+                </div>
+
+                <div class="detalle-card">
+                    <span>Vida útil estimada</span>
+                    <strong id="lblVidaUtil">---</strong>
+                </div>
+
+                <div class="vida-util-box">
+                    <div class="vida-util-header">
+                        <span>Consumo de vida útil</span>
+                        <strong id="lblPorcentajeVida">0%</strong>
+                    </div>
+
+                    <div class="barra-vida">
+                        <div id="barraVidaInterna"></div>
+                    </div>
+                </div>
+
+                <div class="estado-pieza" id="lblEstadoPieza">
+                    Sin selección
+                </div>
+
+                <div class="observacion-pieza">
+                    <span>Observación</span>
+                    <p id="lblObservacion">Seleccione una pieza para visualizar su información.</p>
+                </div>
+
+                <div class="acciones-pieza">
+                    <button type="button" id="btnVerHistorial">Ver historial</button>
+                    <button type="button" id="btnRegistrarCambio">Registrar cambio</button>
+                    <button type="button" id="btnRegistrarReparacion">Registrar reparación</button>
+                </div>
+            </aside>
+
+        </section>
+
+    </main>
+
+    <!-- JS DEL MÓDULO -->
+    <script type="module" src="js/reparaciones3d.js"></script>
+</body>
+</html>
