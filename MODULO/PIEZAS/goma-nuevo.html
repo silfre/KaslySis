@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Módulo de Gomas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../MENUS.CSS">
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="btn-menu" onclick="alternarMenu()" title="Abrir/Cerrar menú">☰</button>
+      <div class="brand">
+        <div class="brand-icon">K</div>
+        <div class="brand-text">KashlySys</div>
+      </div>
+      <nav class="menu">
+        <a href="../INICIO/index.html" class="menu-item">
+          <span class="menu-emoji">🏠</span>
+          <span class="menu-text">Inicio</span>
+        </a>
+        <a href="PIEZAS.HTML" class="menu-item">
+          <span class="menu-emoji">🧩</span>
+          <span class="menu-text">Piezas</span>
+        </a>
+        <a href="goma-nuevo.html" class="menu-item active">
+          <span class="menu-emoji">🛞</span>
+          <span class="menu-text">Gomas</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content" id="mainContent">
+      <section class="topbar card">
+        <div>
+          <h1>🛞 Módulo de Gomas</h1>
+          <p>Registro y control de cambio de llantas/gomas en unidades</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-primary" onclick="abrirModalGoma()" style="background: #2196F3; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">➕ Nueva Goma</button>
+        </div>
+      </section>
+
+      <!-- RESUMEN -->
+      <section class="summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; background: white; margin: 20px; border-radius: 8px;">
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Total Cambios</span>
+          <strong id="totalGomas" style="display: block; font-size: 28px; margin-top: 10px;">0</strong>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Valor Total</span>
+          <strong id="valorTotal" style="display: block; font-size: 28px; margin-top: 10px;">$0.00</strong>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Este Mes</span>
+          <strong id="registrosMes" style="display: block; font-size: 28px; margin-top: 10px;">0</strong>
+        </div>
+      </section>
+
+      <!-- TABLA -->
+      <section class="card" style="background: white; padding: 20px; margin: 20px; border-radius: 8px;">
+        <div class="section-header" style="margin-bottom: 15px;">
+          <input type="text" id="buscarGoma" placeholder="Buscar por unidad, marca o posición..." onkeyup="filtrarTabla()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        <table class="tabla-datos" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f5f5f5;">
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Fecha</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Unidad</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Posición</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Marca</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Medida</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Precio</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">KM</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaGomas" style="background: white;">
+            <tr><td colspan="8" style="text-align: center; padding: 20px;">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="../BASE_DATOS/database.js"></script>
+  <script src="../MENUS.JS"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarBD();
+      cargarUnidades();
+      renderizarUI();
+    });
+
+    function renderizarUI() {
+      renderizarTabla();
+    }
+
+    function abrirModalGoma() {
+      const modal = `
+        <div id="modal" class="modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+          <div class="modal-contenido" style="background: white; margin: 50px auto; padding: 30px; width: 90%; max-width: 600px; border-radius: 8px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <h2 style="margin: 0;">Nueva Goma</h2>
+              <button class="btn-cerrar" onclick="cerrarModal()" style="background: #f5f5f5; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 20px;">✕</button>
+            </div>
+            <form onsubmit="guardarGoma(event)">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Unidad *</label>
+                  <select id="selectUnidad" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- Selecciona Unidad --</option>
+                  </select>
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Fecha *</label>
+                  <input type="date" id="fecha" required value="${new Date().toISOString().split('T')[0]}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Posición *</label>
+                  <select id="posicion" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- Selecciona --</option>
+                    <option value="DLH">DLH (Del Izq)</option>
+                    <option value="DRH">DRH (Del Der)</option>
+                    <option value="TLH">TLH (Tras Izq)</option>
+                    <option value="TRH">TRH (Tras Der)</option>
+                  </select>
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Marca *</label>
+                  <input type="text" id="marca" placeholder="Ej: Bridgestone" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Medida *</label>
+                  <input type="text" id="medida" placeholder="Ej: 295/80 R22.5" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Precio *</label>
+                  <input type="number" id="precio" step="0.01" placeholder="0.00" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div style="grid-column: 1 / -1;"><label style="display: block; margin-bottom: 5px; font-weight: bold;">KM Actual 📊</label>
+                  <input type="number" id="kmActual" placeholder="Ej: 150500" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; background: #2196F3; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">💾 Guardar Goma</button>
+            </form>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+      cargarUnidadesEnSelect('selectUnidad');
+    }
+
+    function cerrarModal() {
+      const modal = document.getElementById('modal');
+      if (modal) modal.remove();
+    }
+
+    function cargarUnidadesEnSelect(selectId) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      select.innerHTML = '<option value="">-- Selecciona Unidad --</option>';
+      const unidades = sistemaBD.unidades || [];
+      unidades.forEach(u => {
+        const option = document.createElement('option');
+        option.value = u.id;
+        option.textContent = `${u.ficha} - ${u.marca}`;
+        select.appendChild(option);
+      });
+    }
+
+    function guardarGoma(event) {
+      event.preventDefault();
+      const unidad = document.getElementById('selectUnidad').value.trim();
+      const fecha = document.getElementById('fecha').value.trim();
+      const posicion = document.getElementById('posicion').value.trim();
+      const marca = document.getElementById('marca').value.trim();
+      const medida = document.getElementById('medida').value.trim();
+      const precio = parseFloat(document.getElementById('precio').value) || 0;
+      const kmActual = parseFloat(document.getElementById('kmActual').value) || 0;
+
+      if (!unidad || !posicion || !marca || !medida || precio <= 0) {
+        alert('❌ Completa todos los campos requeridos');
+        return;
+      }
+
+      registrarMantenimiento({
+        tipo: 'goma',
+        unidad: unidad,
+        km: kmActual,
+        fecha: fecha,
+        hora: new Date().toLocaleTimeString('en-GB', { hour12: false }).substring(0, 5),
+        descripcion: `Goma ${posicion} - ${marca} ${medida}`,
+        monto: precio,
+        posicion: posicion,
+        marca: marca,
+        medida: medida
+      });
+
+      cerrarModal();
+      renderizarUI();
+      alert('✓ Goma registrada correctamente.');
+    }
+
+    function renderizarTabla() {
+      const tbody = document.getElementById('tablaGomas');
+      const gomas = sistemaBD.goma || [];
+
+      if (gomas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No hay gomas registradas</td></tr>';
+        actualizarResumen();
+        return;
+      }
+
+      tbody.innerHTML = gomas.map(g => `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 12px;">${g.fecha}</td>
+          <td style="padding: 12px;">${g.unidad}</td>
+          <td style="padding: 12px;">${g.posicion}</td>
+          <td style="padding: 12px;">${g.marca}</td>
+          <td style="padding: 12px;">${g.medida}</td>
+          <td style="padding: 12px;">$${g.monto?.toFixed(2) || '0.00'}</td>
+          <td style="padding: 12px;">${g.km || '-'}</td>
+          <td style="padding: 12px;">
+            <button class="btn-small btn-delete" onclick="eliminarGoma('${g.id}')" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">🗑</button>
+          </td>
+        </tr>
+      `).join('');
+
+      actualizarResumen();
+    }
+
+    function filtrarTabla() {
+      const termino = document.getElementById('buscarGoma').value.toLowerCase();
+      const gomas = sistemaBD.goma || [];
+      const filtradas = gomas.filter(g =>
+        g.unidad?.toLowerCase().includes(termino) ||
+        g.marca?.toLowerCase().includes(termino) ||
+        g.posicion?.toLowerCase().includes(termino)
+      );
+
+      const tbody = document.getElementById('tablaGomas');
+      if (filtradas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No hay resultados</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtradas.map(g => `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 12px;">${g.fecha}</td>
+          <td style="padding: 12px;">${g.unidad}</td>
+          <td style="padding: 12px;">${g.posicion}</td>
+          <td style="padding: 12px;">${g.marca}</td>
+          <td style="padding: 12px;">${g.medida}</td>
+          <td style="padding: 12px;">$${g.monto?.toFixed(2) || '0.00'}</td>
+          <td style="padding: 12px;">${g.km || '-'}</td>
+          <td style="padding: 12px;">
+            <button class="btn-small btn-delete" onclick="eliminarGoma('${g.id}')" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">🗑</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function eliminarGoma(id) {
+      if (!confirm('¿Seguro que deseas eliminar?')) return;
+      const gomas = sistemaBD.goma || [];
+      const index = gomas.findIndex(g => g.id === id);
+      if (index > -1) {
+        gomas.splice(index, 1);
+        guardarBD();
+      }
+      renderizarUI();
+    }
+
+    function actualizarResumen() {
+      const gomas = sistemaBD.goma || [];
+      const total = gomas.length;
+      const valor = gomas.reduce((sum, g) => sum + (g.monto || 0), 0);
+      const hoy = new Date();
+      const mesActual = hoy.getMonth() + 1;
+      const anioActual = hoy.getFullYear();
+      const registrosMes = gomas.filter(g => {
+        const [y, m] = g.fecha.split('-');
+        return parseInt(m) === mesActual && parseInt(y) === anioActual;
+      }).length;
+
+      document.getElementById('totalGomas').textContent = total;
+      document.getElementById('valorTotal').textContent = `$${valor.toFixed(2)}`;
+      document.getElementById('registrosMes').textContent = registrosMes;
+    }
+
+    function cargarUnidades() {}
+  </script>
+</body>
+</html>

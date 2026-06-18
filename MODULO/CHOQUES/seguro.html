@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Seguro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../MENUS.CSS">
+    <link rel="stylesheet" href="seguro.css">
+
+    <script src="../BASE_DATOS/database.js"></script>
+</head>
+
+<body class="page-seguro">
+
+<div class="layout">
+
+    <div id="menuGlobal"></div>
+
+    <main class="main-content" id="mainContent">
+
+        <section class="topbar">
+            <div>
+                <h1>Reportes de Seguro</h1>
+                <p>Seguimiento de reportes del seguro relacionados a choques de unidades.</p>
+            </div>
+
+            <div class="botones">
+                <button class="btn btn-azul" onclick="abrirModalSeguro()">➕ Nuevo Reporte</button>
+                <button class="btn btn-rojo" onclick="DescargaPDF()"> 📄 Descargar PDF</button  >
+                <button class="btn btn-verde" onclick="limpiarFiltros()"> 🗑️ Limpiar</button  >
+            </div>
+        </section>
+
+        <section class="cards">
+            <div class="card">
+                <span>Total reportes</span>
+                <strong id="cardTotalSeguro">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Abiertos</span>
+                <strong id="cardAbiertos">0</strong>
+            </div>
+
+            <div class="card">
+                <span>En tribunal</span>
+                <strong id="cardTribunal">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Monto reclamado</span>
+                <strong id="cardMontoReclamado">RD$0.00</strong>
+            </div>
+        </section>
+
+        <section class="table-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Listado de reportes de seguro</h2>
+                </div>
+
+                <input 
+                    class="buscador" 
+                    id="buscadorSeguro" 
+                    type="text" 
+                    placeholder="Buscar reporte, ficha, seguro, estado..." 
+                    oninput="renderizarSeguros()"
+                >
+            </div>
+
+            <div class="tabla-contenedor">
+                <table class="tabla-seguro">
+                    <thead>
+                        <tr>
+                            <th>ID Reporte</th>
+                            <th>No. Reporte Seguro</th>
+                            <th>Fecha</th>
+                            <th>Ficha</th>
+                            <th>Chofer</th>
+                            <th>Aseguradora</th>
+                            <th>Tipo Seguro</th>
+                            <th>Estado</th>
+                            <th>Monto Reclamado</th>
+                            <th>Última Actualización</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaSeguroBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- MODAL NUEVO / EDITAR REPORTE -->
+<div id="modalSeguro" class="modal">
+    <div class="modal-contenido">
+
+        <div class="modal-header">
+            <h2 id="tituloModalSeguro">Nuevo Reporte de Seguro</h2>
+            <button class="btn-cerrar" type="button" onclick="cerrarModalSeguro()">✕</button>
+        </div>
+
+        <form id="formSeguro" onsubmit="guardarReporteSeguro(event)">
+
+            <div class="modal-cuerpo-form">
+
+                <div class="form-grid">
+
+                    <div class="form-grupo campo-completo">
+                        <label>Choque relacionado</label>
+                        <select id="choqueRelacionado" onchange="cargarDatosChoqueSeleccionado()">
+                            <option value="">-- Sin choque relacionado / manual --</option>
+                        </select>
+                        <small>Si seleccionas un choque, se cargará la unidad, chofer y datos principales.</small>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>ID Reporte</label>
+                        <input type="text" id="idReporteSeguro" readonly>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>No. Reporte Seguro *</label>
+                        <input type="text" id="numeroReporteSeguro" required placeholder="Ej: SEG-2026-001">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Fecha apertura *</label>
+                        <input type="date" id="fechaAperturaSeguro" required>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Fecha del choque</label>
+                        <input type="date" id="fechaChoqueSeguro">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Unidad / Ficha *</label>
+                        <select id="unidadSeguro" required></select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Chofer</label>
+                        <select id="choferSeguro"></select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Aseguradora *</label>
+                        <input type="text" id="aseguradoraSeguro" required placeholder="Nombre del seguro">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>No. Póliza</label>
+                        <input type="text" id="numeroPolizaSeguro" placeholder="Número de póliza">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Tipo de seguro *</label>
+                        <select id="tipoSeguro" required>
+                            <option value="">Seleccione</option>
+                            <option value="FULL">FULL</option>
+                            <option value="LEY">LEY</option>
+                            <option value="TERCERO">SUPREMO</option>
+                            <option value="NO FULL">NO FULL</option>
+                            <option value="OTRO">OTRO</option>
+                        </select>
+                    </div>
+
+
+                    !
+                    <div class="form-grupo">
+                        <label>CONDICIONE ACCIDENTE</label>
+                        <select id="valeTribunalSeguro">
+                            <option value="NO">NO</option>
+                            <option value="SI">SI</option>
+                            <option value="PENDIENTE EVALUACIÓN">PENDIENTE EVALUACIÓN</option>
+                        </select>
+                    </div>
+
+                <div class="form-grupo">
+                    <label>CONDICION DE ACCIDENTE</label>
+                    <select id="condicionAccidenteSeguro">
+                        <option value="VARIOS">VARIOS</option>
+                        <option value="DAÑOS A UNIDAD POR OTRO">CULPA TOTAL CHOFER</option>
+                        <option value="DAÑO PROPIOS">CULPA PARCIAL CHOFER</option>
+                        <option value="OTRA CONDICION">OTRA CONDICION </option>
+                    </select>
+                         
+                </div>
+                
+                    
+
+                    <div class="form-grupo">
+                        <label>Estado *</label>
+                        <select id="estadoSeguro" required>
+                            <option value="ABIERTO">ABIERTO</option>
+                            <option value="EN PROCESO">EN PROCESO</option>
+                            <option value="PENDIENTE DOCUMENTOS">PENDIENTE DOCUMENTOS</option>
+                            <option value="EN TRIBUNAL">EN TRIBUNAL</option>
+                            <option value="APROBADO">APROBADO</option>
+                            <option value="PAGADO">PAGADO</option>
+                            <option value="NO PROCEDE">NO PROCEDE</option>
+                            <option value="CERRADO">CERRADO</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Monto reclamado</label>
+                        <input type="number" id="montoReclamadoSeguro" step="0.01" min="0">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Monto aprobado</label>
+                        <input type="number" id="montoAprobadoSeguro" step="0.01" min="0">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Monto pagado</label>
+                        <input type="number" id="montoPagadoSeguro" step="0.01" min="0">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Deducible</label>
+                        <input type="number" id="deducibleSeguro" step="0.01" min="0">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Responsable</label>
+                        <input type="text" id="responsableSeguro" placeholder="Persona que da seguimiento">
+                    </div>
+
+                    <div class="form-grupo">
+                        <label>Fotos / Evidencias</label>
+                        <input type="file" id="fotosSeguro" accept="image/*" multiple onchange="previewFotosSeguro()">
+                        <small>Puedes agregar varias fotos del reporte, documentos o evidencia.</small>
+                    </div>
+
+                    <div class="form-grupo campo-completo">
+                        <div class="preview-fotos" id="previewFotosSeguro"></div>
+                    </div>
+
+                    <div class="form-grupo campo-completo">
+                        <label>Comentario inicial</label>
+                        <textarea id="comentarioSeguro" rows="4" placeholder="Detalles del reporte, observaciones o explicación..."></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="form-acciones-fijas">
+                <button type="submit" class="btn btn-verde" id="btnGuardarSeguro">💾 Guardar</button>
+                <button type="button" class="btn btn-rojo" onclick="cerrarModalSeguro()">Cancelar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- MODAL VER DETALLE -->
+<div id="modalDetalleSeguro" class="modal-detalle">
+    <div class="modal-detalle-contenido">
+
+        <div class="modal-header">
+            <h2>Detalle del Reporte de Seguro</h2>
+            <button class="btn-cerrar" type="button" onclick="cerrarDetalleSeguro()">✕</button>
+        </div>
+
+        <div id="contenidoDetalleSeguro"></div>
+
+    </div>
+</div>
+
+<!-- MODAL SEGUIMIENTO -->
+<div id="modalSeguimientoSeguro" class="modal">
+    <div class="modal-contenido modal-seguimiento">
+
+        <div class="modal-header">
+            <h2>Actualizar Seguimiento</h2>
+            <button class="btn-cerrar" type="button" onclick="cerrarModalSeguimiento()">✕</button>
+        </div>
+
+        <form id="formSeguimientoSeguro" onsubmit="guardarSeguimientoSeguro(event)">
+
+            <div class="modal-cuerpo-form">
+
+                <div class="form-grupo">
+                    <label>Fecha actualización *</label>
+                    <input type="date" id="fechaSeguimiento" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label>Nuevo estado *</label>
+                    <select id="estadoSeguimiento" required>
+                        <option value="ABIERTO">ABIERTO</option>
+                        <option value="EN PROCESO">EN PROCESO</option>
+                        <option value="PENDIENTE DOCUMENTOS">PENDIENTE DOCUMENTOS</option>
+                        <option value="EN TRIBUNAL">EN TRIBUNAL</option>
+                        <option value="APROBADO">APROBADO</option>
+                        <option value="PAGADO">PAGADO</option>
+                        <option value="NO PROCEDE">NO PROCEDE</option>
+                        <option value="CERRADO">CERRADO</option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label>Responsable</label>
+                    <input type="text" id="responsableSeguimiento" placeholder="Quién actualizó">
+                </div>
+
+                <div class="form-grupo">
+                    <label>Fotos de la actualización</label>
+                    <input type="file" id="fotosSeguimiento" accept="image/*" multiple onchange="previewFotosSeguimiento()">
+                </div>
+
+                <div class="preview-fotos" id="previewFotosSeguimiento"></div>
+
+                <div class="form-grupo">
+                    <label>Comentario de seguimiento *</label>
+                    <textarea id="comentarioSeguimiento" rows="5" required placeholder="Describe qué pasó, qué se recibió, qué falta o qué se actualizó..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-acciones-fijas">
+                <button type="submit" class="btn btn-verde">💾 Guardar seguimiento</button>
+                <button type="button" class="btn btn-rojo" onclick="cerrarModalSeguimiento()">Cancelar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- VISOR FOTO GRANDE -->
+<div id="visorFotoSeguro" class="visor-foto-grande">
+    <button class="btn-cerrar-foto" type="button" onclick="cerrarFotoSeguro()">✕</button>
+
+    <button class="btn-flecha-foto izquierda" type="button" onclick="cambiarFotoSeguro(-1)">❮</button>
+
+    <div class="foto-grande-contenedor">
+        <img id="imagenFotoSeguro" src="" alt="Foto seguro">
+        <p id="contadorFotoSeguro"></p>
+    </div>
+
+    <button class="btn-flecha-foto derecha" type="button" onclick="cambiarFotoSeguro(1)">❯</button>
+</div>
+
+<script src="../MENUS.JS"></script>
+<script src="seguro.js"></script>
+
+</body>
+</html>

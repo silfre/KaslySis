@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mantenimiento Pendiente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <link rel="stylesheet" href="../MENUS.CSS">
+    <link rel="stylesheet" href="mantenimiento.css">
+    <link rel ="stylesheet" href="MantenimientoPendiente.css">
+    <script src="../BASE_DATOS/database.js"></script>
+
+    <style>
+        .badge { display:inline-block; padding:7px 12px; border-radius:999px; font-size:12px; font-weight:bold; white-space:nowrap; }
+        .badge-verde { background:#dcfce7; color:#166534; }
+        .badge-amarillo { background:#fef3c7; color:#92400e; }
+        .badge-azul { background:#dbeafe; color:#1d4ed8; }
+        .badge-rojo { background:#fee2e2; color:#991b1b; }
+        .numero { text-align:right; font-weight:bold; }
+        .historial-wrapper { max-height:420px; overflow:auto; border:1px solid #e2e8f0; border-radius:14px; }
+        .historial-wrapper table { width:100%; border-collapse:collapse; min-width:950px; }
+        .historial-wrapper th, .historial-wrapper td { padding:11px 12px; border-bottom:1px solid #e5e7eb; font-size:13px; text-align:left; }
+        .historial-wrapper th { background:#f8fafc; color:#0f172a; }
+        .nota-formulario { display:block; margin-bottom:12px; font-weight:bold; color:#64748b; line-height:1.35; }
+        .bloque-primera-vez { background:#fff7ed; border:1px solid #fed7aa; border-radius:14px; padding:12px; margin-bottom:12px; }
+        .bloque-primera-vez strong { color:#92400e; display:block; margin-bottom:10px; }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+    <div id="menuGlobal"></div>
+
+    <main class="main-content" id="mainContent">
+        <section class="topbar">
+            <div>
+                <h1>Mantenimiento Pendiente</h1>
+                <p>Control automático de mantenimiento por KM. El historial se guarda con usuario, fecha y hora.</p>
+            </div>
+
+            <div class="botones">
+                <button type="button" class="btn btn-azul" onclick="actualizarTablaMantenimiento()">🔄 Actualizar</button>
+                <button type="button" class="btn btn-morado" onclick="abrirHistorialGeneral()">📜 Historial</button>
+                <button type="button" class="btn btn-verde" onclick="descargarExcelMantenimiento()">📥 Descargar</button>
+                <button type="button" class="btn btn-naranja" onclick="filtrarDatosMantenimiento()">🔍 Filtrar</button>
+                <button type="button" class="btn btn-rojo" onclick="limpiarDatosMantenimiento()">🗑 Limpiar</button>
+                <button class="btn btn-morado" onclick="abrirCapturaSeleccion()">  📸 Capturar selección</button>
+                <button class="btn btn-azul" onclick="importarDatos()">I Importar</button>
+            </div>
+        </section>
+
+        <section class="cards">
+            <div class="card"><span>Pendientes</span><strong id="cardTotalPendientes">0</strong></div>
+            <div class="card"><span>Mantenimientos Dados Este Mes</span><strong id="cardMantenimientosMes">0</strong></div>
+            <div class="card"><span>Unidades Vencidas</span><strong id="cardUnidadesVencidas">0</strong></div>
+            <div class="card"><span>Por Vencer</span><strong id="cardPorVencer">0</strong></div>
+        </section>
+
+        <section class="table-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Listado de Mantenimientos por Unidad</h2>
+                    <p>Deben aparecer todas las unidades registradas. El sistema calcula el estado según el KM recorrido desde el último mantenimiento.</p>
+                </div>
+
+                <div class="herramientas">
+                    <input class="buscador" id="buscadorMantenimiento" type="text" placeholder="Buscar ficha, estado o mantenimiento..." oninput="filtrarDatosMantenimiento()">
+                </div>
+            </div>
+
+            <div class="filtros">
+                <select id="filtroEstadoMantenimiento" onchange="filtrarDatosMantenimiento()">
+                    <option value="">-- Todos los estados --</option>
+                    <option value="al_dia">Al día</option>
+                    <option value="por_vencer">Por vencer</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="vencido">Vencido</option>
+                </select>
+            </div>
+
+            <div class="tabla-toolbar">
+                <div class="tabla-paginacion-info">
+                    Mostrar
+                    <select id="selectRegistrosPorPagina" onchange="cambiarRegistrosPorPagina(this.value)">
+                        <option value="20">20</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                    registros por página
+                </div>
+
+                <div class="tabla-paginacion">
+                    <span id="textoPaginacion">0-0 / 0</span>
+                    <button id="btnPrimeraPagina" onclick="irPrimeraPagina()">«</button>
+                    <button id="btnPaginaAnterior" onclick="irPaginaAnterior()">‹</button>
+                    <button id="btnPaginaSiguiente" onclick="irPaginaSiguiente()">›</button>
+                    <button id="btnUltimaPagina" onclick="irUltimaPagina()">»</button>
+                </div>
+            </div>
+
+            <div class="table-scroll-area">
+                <div class="table-wrapper">
+                    <table class="tabla-datos" id="tablaMantenimientoPendiente">
+                        <thead>
+                           <tr>
+                             <th>
+                           <input type="checkbox" id="checkSeleccionarTodo" onchange="seleccionarTodoCaptura(this)">
+                              </th>
+                              <th>Ficha</th>
+                                <th>Último Mantenimiento</th>
+                                <th>KM Último Mantenimiento</th>
+                                <th>KM Actual Automático</th>
+                                <th>KM Actual Manual</th>
+                                <th>KM Recorrido</th>
+                                <th>Estado</th>
+                                <th>Última Actualización</th>
+                                <th>Actualizado Por</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBodyMantenimiento"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mensaje" id="mensajeMantenimiento">Sistema listo.</div>
+        </section>
+    </main>
+</div>
+
+<div id="modalActualizarMantenimiento" class="modal">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h2 id="tituloModalMantenimiento">Actualizar Mantenimiento</h2>
+            <button type="button" class="btn-cerrar" onclick="cerrarModal('modalActualizarMantenimiento')">✕</button>
+        </div>
+
+        <form id="formActualizarMantenimiento" onsubmit="guardarActualizacionMantenimiento(event)">
+            <input type="hidden" id="inputIdRegistro">
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>Ficha *</label>
+                    <input type="text" id="inputFicha" required placeholder="Ej: T04" oninput="this.value = this.value.toUpperCase(); cargarUnidadEnModalPorFicha();">
+                </div>
+                <div class="form-grupo">
+                    <label>Fecha del mantenimiento actual *</label>
+                    <input type="date" id="inputFecha" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>Fecha del último mantenimiento</label>
+                    <input type="date" id="inputFechaUltimo" readonly>
+                </div>
+                <div class="form-grupo">
+                    <label>KM del último mantenimiento</label>
+                    <input type="number" id="inputKmUltimo" min="0" readonly>
+                </div>
+            </div>
+
+            <small id="textoUltimoMantenimiento" class="nota-formulario">El último mantenimiento se busca automático por ficha.</small>
+
+              <button 
+                    type="button" 
+                    id="btnEditarMantenimientoPasado" 
+                    class="btn btn-naranja" 
+                    onclick="habilitarEdicionMantenimientoPasado()" 
+                    style="display:none; margin-bottom:12px;"
+                       >
+                     ✏️ Editar mantenimiento pasado
+            </button>
+              
+
+            <div id="bloquePrimeraVez" class="bloque-primera-vez" style="display:none;">
+                <strong>Primera vez de esta unidad</strong>
+                <div class="form-row">
+                    <div class="form-grupo">
+                        <label>Fecha anterior manual *</label>
+                        <input type="date" id="inputFechaUltimoManual">
+                    </div>
+                    <div class="form-grupo">
+                        <label>KM anterior manual *</label>
+                        <input type="number" id="inputKmUltimoManual" min="0" placeholder="Ej: 1000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>KM actual automático</label>
+                    <input type="number" id="inputKmAutomatico" readonly>
+                </div>
+                <div class="form-grupo">
+                    <label>KM donde se dio mantenimiento *</label>
+                    <input type="number" id="inputKmMantenimiento" required min="0" placeholder="Ej: 2000">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>Tipo de mantenimiento *</label>
+                    <select id="selectTipoMantenimiento" required>
+                        <option value="">-- Seleccionar --</option>
+                        <option value="MANTENIMIENTO FULL">FULL</option>
+                        <option value="MANTENIMIENTO SEMI">SEMI</option>
+                    </select>
+                </div>
+                <div class="form-grupo">
+                    <label>Actualizado por *</label>
+                    <input type="text" id="inputUsuarioActualiza" required placeholder="Nombre del usuario">
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label>Comentario</label>
+                <textarea id="inputComentario" rows="3" placeholder="Detalle o nota de la actualización..."></textarea>
+            </div>
+
+            <div class="form-acciones">
+                <button type="submit" id="btnGuardarRegistro" class="btn btn-verde">💾 Guardar actualización</button>
+                <button type="button" id="btnEditarDesdeVer" class="btn btn-naranja" onclick="activarEdicionDesdeVista()" style="display:none;">✏️ Editar</button>
+                <button type="button" class="btn btn-gris" onclick="cerrarModal('modalActualizarMantenimiento')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalHistorialMantenimiento" class="modal">
+    <div class="modal-contenido modal-grafico-contenido">
+        <div class="modal-header">
+            <div>
+                <h2 id="tituloHistorial">Historial de Actualizaciones</h2>
+                <p class="texto-modal">Registro de quién actualizó, cuándo y qué KM cambió.</p>
+            </div>
+            <button type="button" class="btn-cerrar" onclick="cerrarModal('modalHistorialMantenimiento')">✕</button>
+        </div>
+
+        <div class="historial-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha/Hora Registro</th>
+                        <th>Ficha</th>
+                        <th>Tipo</th>
+                        <th>Fecha Anterior</th>
+                        <th>KM Anterior</th>
+                        <th>Fecha Nueva</th>
+                        <th>KM Nuevo</th>
+                        <th>Usuario</th>
+                        <th>Comentario</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBodyHistorial"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modalKmActual" class="modal">
+    <div class="modal-contenido">
+
+        <div class="modal-header">
+            <h2>Actualizar KM Actual</h2>
+            <button type="button" class="btn-cerrar" onclick="cerrarModal('modalKmActual')">✕</button>
+        </div>
+
+        <form id="formKmActual" onsubmit="guardarKmActualManual(event)">
+
+            <input type="hidden" id="inputIdKmActual">
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>Ficha</label>
+                    <input type="text" id="inputFichaKmActual" readonly>
+                </div>
+
+                <div class="form-grupo">
+                    <label>KM último mantenimiento</label>
+                    <input type="number" id="inputKmUltimoVista" readonly>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>KM actual manual *</label>
+                    <input type="number" id="inputKmActualManual" required min="0" placeholder="Ej: 150000">
+                </div>
+
+                <div class="form-grupo">
+                    <label>KM recorrido desde último mantenimiento</label>
+                    <input type="number" id="inputKmRecorridoVista" readonly>
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label>Actualizado por *</label>
+                <input type="text" id="inputUsuarioKmActual" required>
+            </div>
+
+            <div class="form-grupo">
+                <label>Comentario</label>
+                <textarea id="inputComentarioKmActual" rows="3" placeholder="Ej: KM actualizado manualmente..."></textarea>
+            </div>
+
+            <div class="form-acciones">
+                <button type="submit" class="btn btn-verde">💾 Guardar KM actual</button>
+                <button type="button" class="btn btn-gris" onclick="cerrarModal('modalKmActual')">Cancelar</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- MODAL: CAPTURA DE UNIDADES SELECCIONADAS -->
+<div id="modalCapturaSeleccion" class="modal">
+
+    <div class="modal-contenido modal-captura">
+
+        <div class="modal-header">
+            <h2>Captura de unidades seleccionadas</h2>
+            <button type="button" class="btn-cerrar" onclick="cerrarModal('modalCapturaSeleccion')">✕</button>
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-grupo">
+                <label>Fecha de captura</label>
+                <input type="date" id="fechaCaptura" readonly>
+            </div>
+
+            <div class="form-grupo">
+                <label>Capturado por</label>
+                <input type="text" id="usuarioCaptura" readonly>
+            </div>
+
+            <div class="form-grupo">
+                <label>Total unidades</label>
+                <input type="text" id="totalCaptura" readonly>
+            </div>
+
+        </div>
+
+        <div class="tabla-wrapper">
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Ficha</th>
+                        <th>KM Último Mantenimiento</th>
+                        <th>KM Actual Manual</th>
+                        <th>KM Recorrido</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaBodyCaptura"></tbody>
+            </table>
+        </div>
+
+        <div class="form-acciones">
+            <button type="button" class="btn btn-verde" onclick="window.print()">🖨 Imprimir</button>
+            <button type="button" class="btn btn-naranja" onclick="limpiarSeleccionCaptura()">🧹 Limpiar selección</button>
+            <button type="button" class="btn btn-gris" onclick="cerrarModal('modalCapturaSeleccion')">Cerrar</button>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="../MENUS.JS"></script>
+<script src="MantenimientoPendiente.js"></script>
+
+</body>
+</html>

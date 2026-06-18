@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Limpieza y Fumigación</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../MENUS.CSS">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="btn-menu" onclick="alternarMenu()" title="Abrir/Cerrar menú">☰</button>
+      <div class="brand">
+        <div class="brand-icon">K</div>
+        <div class="brand-text">KashlySys</div>
+      </div>
+      <nav class="menu">
+        <a href="../INICIO/index.html" class="menu-item">
+          <span class="menu-emoji">🏠</span>
+          <span class="menu-text">Inicio</span>
+        </a>
+        <a href="limpieza-nuevo.html" class="menu-item active">
+          <span class="menu-emoji">🧹</span>
+          <span class="menu-text">Limpieza</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+      <section class="topbar card">
+        <div>
+          <h1>🧹 Limpieza y Fumigación</h1>
+          <p>Control de limpieza y fumigación de unidades</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-primary" onclick="abrirModalLimpieza()" style="background: #2196F3; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">➕ Registrar Limpieza</button>
+        </div>
+      </section>
+
+      <section class="summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; background: white; margin: 20px; border-radius: 8px;">
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Total Servicios</span>
+          <strong id="totalServicios" style="display: block; font-size: 28px; margin-top: 10px;">0</strong>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Este Mes</span>
+          <strong id="serviciosMes" style="display: block; font-size: 28px; margin-top: 10px;">0</strong>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Costo Total</span>
+          <strong id="costoTotal" style="display: block; font-size: 28px; margin-top: 10px;">$0.00</strong>
+        </div>
+      </section>
+
+      <section class="card" style="background: white; padding: 20px; margin: 20px; border-radius: 8px;">
+        <div class="section-header" style="margin-bottom: 15px;">
+          <input type="text" id="buscarLimpieza" placeholder="Buscar unidad o empleado..." onkeyup="filtrarTabla()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        <table class="tabla-datos" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f5f5f5;">
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Fecha</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Unidad</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Tipo</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Empleado</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Costo</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Estado</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaLimpieza">
+            <tr><td colspan="7" style="text-align: center; padding: 20px;">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="../BASE_DATOS/database.js"></script>
+  <script src="../MENUS.JS"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarBD();
+      renderizarUI();
+    });
+
+    function renderizarUI() {
+      renderizarTabla();
+    }
+
+    function abrirModalLimpieza() {
+      const modal = `
+        <div id="modal" class="modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+          <div class="modal-contenido" style="background: white; margin: 50px auto; padding: 30px; width: 90%; max-width: 600px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <h2 style="margin: 0;">Registrar Limpieza</h2>
+              <button onclick="cerrarModal()" style="background: #f5f5f5; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 20px;">✕</button>
+            </div>
+            <form onsubmit="guardarLimpieza(event)">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Unidad *</label>
+                  <input type="text" id="unidad" placeholder="Ej: T-001" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Fecha *</label>
+                  <input type="date" id="fecha" required value="${new Date().toISOString().split('T')[0]}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Tipo *</label>
+                  <select id="tipo" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- Selecciona --</option>
+                    <option value="Limpieza">Limpieza Interior</option>
+                    <option value="Fumigación">Fumigación</option>
+                    <option value="Desinfección">Desinfección</option>
+                    <option value="Limpieza completa">Limpieza Completa</option>
+                  </select>
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Empleado</label>
+                  <input type="text" id="empleado" placeholder="Nombre empleado" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Costo *</label>
+                  <input type="number" id="costo" step="0.01" placeholder="0.00" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Estado</label>
+                  <select id="estado" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="Completado">Completado</option>
+                    <option value="En proceso">En proceso</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; background: #2196F3; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">💾 Guardar Registro</button>
+            </form>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+    }
+
+    function cerrarModal() {
+      const modal = document.getElementById('modal');
+      if (modal) modal.remove();
+    }
+
+    function guardarLimpieza(event) {
+      event.preventDefault();
+      const unidad = document.getElementById('unidad').value.trim();
+      const fecha = document.getElementById('fecha').value.trim();
+      const tipo = document.getElementById('tipo').value.trim();
+      const empleado = document.getElementById('empleado').value.trim();
+      const costo = parseFloat(document.getElementById('costo').value) || 0;
+      const estado = document.getElementById('estado').value.trim();
+
+      if (!unidad || !fecha || !tipo || costo <= 0) {
+        alert('❌ Completa todos los campos requeridos');
+        return;
+      }
+
+      const limpieza = {
+        id: Date.now().toString(),
+        unidad: unidad,
+        fecha: fecha,
+        tipo: tipo,
+        empleado: empleado,
+        costo: costo,
+        estado: estado
+      };
+
+      const limpiezas = sistemaBD.limpieza || [];
+      limpiezas.push(limpieza);
+      guardarBD();
+
+      cerrarModal();
+      renderizarUI();
+      alert('✓ Registro guardado.');
+    }
+
+    function renderizarTabla() {
+      const tbody = document.getElementById('tablaLimpieza');
+      const limpiezas = sistemaBD.limpieza || [];
+
+      if (limpiezas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No hay registros</td></tr>';
+        actualizarResumen();
+        return;
+      }
+
+      tbody.innerHTML = limpiezas.map(l => `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 12px;">${l.fecha}</td>
+          <td style="padding: 12px;">${l.unidad}</td>
+          <td style="padding: 12px;">${l.tipo}</td>
+          <td style="padding: 12px;">${l.empleado || '-'}</td>
+          <td style="padding: 12px;">$${l.costo?.toFixed(2)}</td>
+          <td style="padding: 12px;">
+            <span style="background: ${l.estado === 'Completado' ? '#4CAF50' : '#FFC107'}; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px;">${l.estado}</span>
+          </td>
+          <td style="padding: 12px;">
+            <button onclick="eliminarLimpieza('${l.id}')" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">🗑</button>
+          </td>
+        </tr>
+      `).join('');
+
+      actualizarResumen();
+    }
+
+    function filtrarTabla() {
+      const termino = document.getElementById('buscarLimpieza').value.toLowerCase();
+      const limpiezas = sistemaBD.limpieza || [];
+      const filtradas = limpiezas.filter(l =>
+        l.unidad?.toLowerCase().includes(termino) ||
+        l.empleado?.toLowerCase().includes(termino)
+      );
+
+      const tbody = document.getElementById('tablaLimpieza');
+      if (filtradas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No hay resultados</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtradas.map(l => `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 12px;">${l.fecha}</td>
+          <td style="padding: 12px;">${l.unidad}</td>
+          <td style="padding: 12px;">${l.tipo}</td>
+          <td style="padding: 12px;">${l.empleado || '-'}</td>
+          <td style="padding: 12px;">$${l.costo?.toFixed(2)}</td>
+          <td style="padding: 12px;">
+            <span style="background: ${l.estado === 'Completado' ? '#4CAF50' : '#FFC107'}; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px;">${l.estado}</span>
+          </td>
+          <td style="padding: 12px;">
+            <button onclick="eliminarLimpieza('${l.id}')" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">🗑</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function eliminarLimpieza(id) {
+      if (!confirm('¿Seguro?')) return;
+      const limpiezas = sistemaBD.limpieza || [];
+      const index = limpiezas.findIndex(l => l.id === id);
+      if (index > -1) {
+        limpiezas.splice(index, 1);
+        guardarBD();
+      }
+      renderizarUI();
+    }
+
+    function actualizarResumen() {
+      const limpiezas = sistemaBD.limpieza || [];
+      const total = limpiezas.length;
+      const hoy = new Date();
+      const mesActual = hoy.getMonth() + 1;
+      const serviciosMes = limpiezas.filter(l => {
+        const [y, m] = l.fecha.split('-');
+        return parseInt(m) === mesActual;
+      }).length;
+      const costo = limpiezas.reduce((sum, l) => sum + l.costo, 0);
+
+      document.getElementById('totalServicios').textContent = total;
+      document.getElementById('serviciosMes').textContent = serviciosMes;
+      document.getElementById('costoTotal').textContent = `$${costo.toFixed(2)}`;
+    }
+  </script>
+</body>
+</html>

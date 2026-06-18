@@ -1,0 +1,253 @@
+/* ===============================
+   CONTENIDO GENERAL
+================================ */
+
+body {
+    margin: 0;
+    background: #eef2f6;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #07142b;
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    padding: 26px;
+    transition: 0.3s ease;
+}
+
+/* ===============================
+   SOPORTE DEL SIDEBAR
+   Si MENUS.CSS ya lo controla, esto solo ayuda.
+================================ */
+
+
+
+
+
+
+
+
+.logo-box {
+    width: 42px;
+    height: 42px;
+    background: #22c55e;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-weight: 900;
+    font-size: 20px;
+}
+
+.logo-text {
+    color: #22c55e;
+    font-weight: 900;
+    font-size: 18px;
+}
+
+
+
+
+
+
+
+
+/* ===============================
+   ENCABEZADO
+================================ */
+
+.encabezado-modulo-piezas {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.encabezado-modulo-piezas h1 {
+    margin: 0;
+    color: #011254;
+    font-size: 30px;
+}
+
+.encabezado-modulo-piezas p {
+    margin: 8px 0 0;
+    color: #52677a;
+    font-size: 15px;
+}
+
+/* ===============================
+   RESUMEN
+================================ */
+
+.resumen-piezas {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.resumen-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.resumen-card span {
+    display: block;
+    color: #52677a;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.resumen-card strong {
+    color: #011254;
+    font-size: 30px;
+}
+
+/* ===============================
+   TARJETAS DE PIEZAS
+================================ */
+
+.grid-menu-piezas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(250px, 1fr));
+    gap: 22px;
+}
+
+.card-pieza {
+    border: none;
+    background: #ffffff;
+    border-radius: 24px;
+    min-height: 260px;
+    padding: 26px;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transition: 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-pieza:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 16px 34px rgba(0,0,0,0.14);
+}
+
+.card-activa {
+    border: 3px solid #011254;
+}
+
+.icono-card {
+    width: 82px;
+    height: 82px;
+    border-radius: 22px;
+    display: grid;
+    place-items: center;
+    font-size: 44px;
+    margin-bottom: 22px;
+    color: #ffffff;
+    box-shadow: inset -14px -14px 0 rgba(0,0,0,0.20);
+}
+
+.icono-goma {
+    background: linear-gradient(135deg, #111827, #374151);
+}
+
+.icono-alternador {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+}
+
+.icono-amortiguacion {
+    background: linear-gradient(135deg, #f59e0b, #b45309);
+}
+
+.icono-frenos {
+    background: linear-gradient(135deg, #ef4444, #991b1b);
+}
+
+.icono-bateria {
+    background: linear-gradient(135deg, #22c55e, #166534);
+}
+
+.icono-motor {
+    background: linear-gradient(135deg, #64748b, #0f172a);
+}
+
+.contenido-card h2 {
+    margin: 0 0 10px;
+    color: #011254;
+    font-size: 24px;
+}
+
+.contenido-card p {
+    margin: 0;
+    color: #52677a;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.estado-card {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 10px 15px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 13px;
+}
+
+.disponible {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.pendiente {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 1200px) {
+    .grid-menu-piezas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .resumen-piezas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .sidebar.cerrado {
+        width: 100%;
+    }
+
+    .grid-menu-piezas,
+    .resumen-piezas {
+        grid-template-columns: 1fr;
+    }
+
+    .main-content {
+        padding: 16px;
+    }
+}

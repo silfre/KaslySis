@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Módulo de Mantenimiento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Librerías -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../MENUS.CSS">
+    <link rel="stylesheet" href="mantenimiento.css">
+
+
+    <!-- Base de datos -->
+    <script src="../BASE_DATOS/database.js"></script>
+</head>
+
+<body>
+
+<div class="layout">
+
+       <div id="menuGlobal"></div>
+    
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="mainContent">
+
+        <!-- TOPBAR -->
+        <section class="topbar">
+            <div>
+                <h1>Módulo de Mantenimiento</h1>
+                <p>Registro centralizado de todos los mantenimientos. El KM se actualiza automáticamente.</p>
+            </div>
+
+            <div class="botones">
+                <button class="btn btn-azul" onclick="abrirModalRegistro()">➕ Nuevo Mantenimiento</button>
+                <button class="btn btn-verde" onclick="descargarExcel()">📥 Descargar</button>
+                <button class="btn btn-naranja" onclick="abrirModalFiltros()">🔍 Filtrar</button>
+                <button class="btn btn-rojo" onclick="limpiarTabla()">🗑 Limpiar</button>
+            </div>
+        </section>
+
+        <!-- TARJETAS DE RESUMEN -->
+        <section class="cards">
+            <div class="card">
+                <span>Total Registros</span>
+                <strong id="cardTotal">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Este Mes</span>
+                <strong id="cardEsteMes">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Unidades Activas</span>
+                <strong id="cardUnidades">0</strong>
+            </div>
+
+            <div class="card">
+                <span>Monto Total</span>
+                <strong id="cardMonto">$0.00</strong>
+            </div>
+        </section>
+
+        <!-- TABLA DE REGISTROS -->
+        <section class="table-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Historial de Mantenimiento</h2>
+                    <p>Todos los registros se sincronizan con el KM actual de la unidad.</p>
+                </div>
+
+                <div class="herramientas">
+                    <input class="buscador" id="buscador" type="text" placeholder="Buscar unidad, tipo, empleado..." oninput="buscarEnTabla()">
+                </div>
+            </div>
+
+            <div class="tabla-toolbar">
+                <div class="tabla-paginacion-info">
+                    Mostrar
+                    <select id="selectRegistrosPorPagina" onchange="cambiarRegistrosPorPagina(this.value)">
+                        <option value="20">20</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                    registros por página
+                </div>
+
+                <div class="tabla-paginacion">
+                    <span id="textoPaginacion">0-0 / 0</span>
+                    <button id="btnPrimeraPagina" onclick="irPrimeraPagina()">«</button>
+                    <button id="btnPaginaAnterior" onclick="irPaginaAnterior()">‹</button>
+                    <button id="btnPaginaSiguiente" onclick="irPaginaSiguiente()">›</button>
+                    <button id="btnUltimaPagina" onclick="irUltimaPagina()">»</button>
+                </div>
+            </div>
+
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Unidad</th>
+                        <th>Tipo</th>
+                        <th>KM</th>
+                        <th>Empleado</th>
+                        <th>Descripción</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                </tbody>
+            </table>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- MODAL: Nuevo Registro -->
+<div id="modalRegistro" class="modal">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h2>Nuevo Mantenimiento</h2>
+            <button class="btn-cerrar" onclick="cerrarModal('modalRegistro')">✕</button>
+        </div>
+
+        <form id="formRegistro" onsubmit="guardarRegistro(event)">
+
+            <div class="form-grupo">
+                <label>Unidad *</label>
+                <select id="selectUnidad" required>
+                    <option value="">-- Seleccionar --</option>
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label>Tipo de Mantenimiento *</label>
+                <select id="selectTipo" required>
+                    <option value="">-- Seleccionar --</option>
+                    <option value="combustible">Combustible</option>
+                    <option value="piezas">Piezas</option>
+                    <option value="goma">Goma/Llanta</option>
+                    <option value="aceite">Aceite</option>
+                    <option value="mecanica">Mecánica</option>
+                    <option value="electrico">Eléctrico</option>
+                    <option value="suspension">Suspensión</option>
+                    <option value="frenos">Frenos</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>Fecha *</label>
+                    <input type="date" id="inputFecha" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label>Hora *</label>
+                    <input type="time" id="inputHora" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-grupo">
+                    <label>KM Actual *</label>
+                    <input type="number" id="inputKm" required min="0" placeholder="Ej: 150000">
+                </div>
+
+                <div class="form-grupo">
+                    <label>Monto ($)</label>
+                    <input type="number" id="inputMonto" step="0.01" min="0" placeholder="Ej: 50.00">
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label>Empleado</label>
+                <select id="selectEmpleado">
+                    <option value="">-- Seleccionar --</option>
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label>Descripción</label>
+                <textarea id="inputDescripcion" rows="4" placeholder="Detalle del mantenimiento realizado..."></textarea>
+            </div>
+
+            <div class="form-acciones">
+                <button type="submit" class="btn btn-verde">💾 Guardar</button>
+                <button type="button" class="btn btn-gris" onclick="cerrarModal('modalRegistro')">Cancelar</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- SCRIPT -->
+<script src="mantenimiento.js"></script>
+<script src="../MENUS.JS"></script>
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Módulo de Empleados</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../MENUS.CSS">
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="btn-menu" onclick="alternarMenu()" title="Abrir/Cerrar menú">☰</button>
+      <div class="brand">
+        <div class="brand-icon">K</div>
+        <div class="brand-text">KashlySys</div>
+      </div>
+      <nav class="menu">
+        <a href="../INICIO/index.html" class="menu-item">
+          <span class="menu-emoji">🏠</span>
+          <span class="menu-text">Inicio</span>
+        </a>
+        <a href="modulo_unidades.html" class="menu-item">
+          <span class="menu-emoji">🚌</span>
+          <span class="menu-text">Unidades</span>
+        </a>
+        <a href="modulo_empleados.html" class="menu-item active">
+          <span class="menu-emoji">👥</span>
+          <span class="menu-text">Empleados</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content" id="mainContent">
+      <section class="topbar card">
+        <div>
+          <h1>👥 Módulo de Empleados</h1>
+          <p>Registro y control de empleados/choferes</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-primary" onclick="abrirModalEmpleado()" style="background: #2196F3; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">➕ Nuevo Empleado</button>
+        </div>
+      </section>
+
+      <!-- RESUMEN -->
+      <section class="summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; background: white; margin: 20px; border-radius: 8px;">
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Total Empleados</span>
+          <strong id="totalEmpleados" style="display: block; font-size: 28px; margin-top: 10px;">0</strong>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Activos</span>
+          <strong id="activos" style="display: block; font-size: 28px; margin-top: 10px;">0</strong>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;">
+          <span>Departamentos</span>
+          <strong id="departamentos" style="display: block; font-size: 28px; margin-top: 10px;">0</strong>
+        </div>
+      </section>
+
+      <!-- TABLA -->
+      <section class="card" style="background: white; padding: 20px; margin: 20px; border-radius: 8px;">
+        <div class="section-header" style="margin-bottom: 15px;">
+          <input type="text" id="buscarEmpleado" placeholder="Buscar por nombre, código o departamento..." onkeyup="filtrarTabla()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        <table class="tabla-datos" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f5f5f5;">
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Código</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Nombre</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Departamento</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Teléfono</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Email</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Estado</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaEmpleados" style="background: white;">
+            <tr><td colspan="7" style="text-align: center; padding: 20px;">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="../BASE_DATOS/database.js"></script>
+  <script src="../MENUS.JS"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarBD();
+      renderizarUI();
+    });
+
+    function renderizarUI() {
+      renderizarTabla();
+    }
+
+    function abrirModalEmpleado() {
+      const modal = `
+        <div id="modal" class="modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+          <div class="modal-contenido" style="background: white; margin: 50px auto; padding: 30px; width: 90%; max-width: 600px; border-radius: 8px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <h2 style="margin: 0;">Nuevo Empleado</h2>
+              <button class="btn-cerrar" onclick="cerrarModal()" style="background: #f5f5f5; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 20px;">✕</button>
+            </div>
+            <form onsubmit="guardarEmpleado(event)">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Código *</label>
+                  <input type="text" id="codigo" placeholder="Ej: 1001" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Nombre *</label>
+                  <input type="text" id="nombre" placeholder="Nombre completo" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Departamento *</label>
+                  <select id="departamento" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- Selecciona --</option>
+                    <option value="Operación">Operación</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                    <option value="Administración">Administración</option>
+                    <option value="Almacén">Almacén</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Teléfono</label>
+                  <input type="tel" id="telefono" placeholder="Teléfono" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
+                  <input type="email" id="email" placeholder="correo@ejemplo.com" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div><label style="display: block; margin-bottom: 5px; font-weight: bold;">Estado</label>
+                  <select id="estado" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; background: #2196F3; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">💾 Guardar Empleado</button>
+            </form>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+    }
+
+    function cerrarModal() {
+      const modal = document.getElementById('modal');
+      if (modal) modal.remove();
+    }
+
+    function guardarEmpleado(event) {
+      event.preventDefault();
+      const codigo = document.getElementById('codigo').value.trim();
+      const nombre = document.getElementById('nombre').value.trim();
+      const departamento = document.getElementById('departamento').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const estado = document.getElementById('estado').value.trim();
+
+      if (!codigo || !nombre || !departamento) {
+        alert('❌ Completa los campos requeridos');
+        return;
+      }
+
+      const empleado = {
+        id: codigo,
+        codigo: codigo,
+        nombre: nombre,
+        departamento: departamento,
+        telefonoContacto: telefono,
+        email: email,
+        estado: estado
+      };
+
+      // Usar función de database.js si existe, sino agregar directamente
+      const empleados = sistemaBD.empleados || [];
+      const existe = empleados.find(e => e.codigo === codigo);
+      
+      if (existe) {
+        alert('❌ Ya existe un empleado con ese código');
+        return;
+      }
+
+      empleados.push(empleado);
+      guardarBD();
+
+      cerrarModal();
+      renderizarUI();
+      alert('✓ Empleado registrado correctamente.');
+    }
+
+    function renderizarTabla() {
+      const tbody = document.getElementById('tablaEmpleados');
+      const empleados = sistemaBD.empleados || [];
+
+      if (empleados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No hay empleados registrados</td></tr>';
+        actualizarResumen();
+        return;
+      }
+
+      tbody.innerHTML = empleados.map(e => `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 12px;">${e.codigo}</td>
+          <td style="padding: 12px;">${e.nombre}</td>
+          <td style="padding: 12px;">${e.departamento}</td>
+          <td style="padding: 12px;">${e.telefonoContacto || '-'}</td>
+          <td style="padding: 12px;">${e.email || '-'}</td>
+          <td style="padding: 12px;">
+            <span style="background: ${e.estado === 'Activo' ? '#4CAF50' : '#f44336'}; color: white; padding: 4px 8px; border-radius: 3px;">${e.estado}</span>
+          </td>
+          <td style="padding: 12px;">
+            <button class="btn-small btn-delete" onclick="eliminarEmpleado('${e.id}')" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">🗑</button>
+          </td>
+        </tr>
+      `).join('');
+
+      actualizarResumen();
+    }
+
+    function filtrarTabla() {
+      const termino = document.getElementById('buscarEmpleado').value.toLowerCase();
+      const empleados = sistemaBD.empleados || [];
+      const filtrados = empleados.filter(e =>
+        e.nombre?.toLowerCase().includes(termino) ||
+        e.codigo?.toLowerCase().includes(termino) ||
+        e.departamento?.toLowerCase().includes(termino)
+      );
+
+      const tbody = document.getElementById('tablaEmpleados');
+      if (filtrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No hay resultados</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(e => `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 12px;">${e.codigo}</td>
+          <td style="padding: 12px;">${e.nombre}</td>
+          <td style="padding: 12px;">${e.departamento}</td>
+          <td style="padding: 12px;">${e.telefonoContacto || '-'}</td>
+          <td style="padding: 12px;">${e.email || '-'}</td>
+          <td style="padding: 12px;">
+            <span style="background: ${e.estado === 'Activo' ? '#4CAF50' : '#f44336'}; color: white; padding: 4px 8px; border-radius: 3px;">${e.estado}</span>
+          </td>
+          <td style="padding: 12px;">
+            <button class="btn-small btn-delete" onclick="eliminarEmpleado('${e.id}')" style="background: #f44336; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">🗑</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function eliminarEmpleado(id) {
+      if (!confirm('¿Seguro que deseas eliminar?')) return;
+      const empleados = sistemaBD.empleados || [];
+      const index = empleados.findIndex(e => e.id === id);
+      if (index > -1) {
+        empleados.splice(index, 1);
+        guardarBD();
+      }
+      renderizarUI();
+    }
+
+    function actualizarResumen() {
+      const empleados = sistemaBD.empleados || [];
+      const total = empleados.length;
+      const activos = empleados.filter(e => e.estado === 'Activo').length;
+      const departamentos = new Set(empleados.map(e => e.departamento)).size;
+
+      document.getElementById('totalEmpleados').textContent = total;
+      document.getElementById('activos').textContent = activos;
+      document.getElementById('departamentos').textContent = departamentos;
+    }
+  </script>
+</body>
+</html>
